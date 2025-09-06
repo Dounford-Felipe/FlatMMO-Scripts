@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Piggie
 // @namespace    com.dounford.flatmmo.piggie
-// @version      0.0.3
+// @version      1.0.0
 // @description  A Buddy Pig
 // @author       Dounford
 // @license      MIT
@@ -21,7 +21,7 @@
             super("piggieBuddy", {
                 about: {
                     name: "FlatMMO+ Piggie",
-                    version: "0.0.3",
+                    version: "1.0.0",
                     author: "Dounford",
                     description: "A Buddy Pig"
                 },
@@ -122,32 +122,22 @@
 
         addPets() {
             this.pets.pig = {};
-            this.pets.pig.stand = new AnimationSheetPlus("piggieStand", 2, "", 50, [
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/stand.png",
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/stand1.png"
-            ]);
-            this.pets.pig.walk = new AnimationSheetPlus("piggieWalk", 4, "", 10, [
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/stand.png",
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/walk.png",
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/stand.png",
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/walk1.png"
-            ]);
-            this.pets.pig.attack = new AnimationSheetPlus("piggieAttack", 2, "", 20, [
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/attack.png",
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/attack1.png"
-            ]);
-            this.pets.pig.fishing_rod = new AnimationSheetPlus("piggieFishingRod", 2, "", 25, [
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/fishing_rod.png",
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/fishing_rod1.png",
-            ]);
-            this.pets.pig.mine_rock = new AnimationSheetPlus("piggieMine", 2, "", 15, [
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/mine_rock.png",
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/mine_rock1.png",
-            ]);
-            this.pets.pig.chop_tree = new AnimationSheetPlus("piggieChopTree", 2, "", 20, [
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/chop_tree.png",
-                "https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/pig/chop_tree1.png",
-            ]);
+            this.registerAnimation("pig","stand","2",50);
+            this.registerAnimation("pig","walk","4",10);
+            this.registerAnimation("pig","attack","2",20);
+            this.registerAnimation("pig","fishing_net","2",25);
+            this.registerAnimation("pig","fishing_rod","2",25);
+            this.registerAnimation("pig","harpoon","2",25);
+            this.registerAnimation("pig","mine_rock","2",15);
+            this.registerAnimation("pig","chop_tree","2",20);
+        }
+
+        registerAnimation(pet, animation, frames, speed) {
+            const animations = [];
+            for (let i = 0; i < frames; i++) {
+                animations.push(`https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/${pet}/${animation}${i}.png`);
+            }
+            this.pets[pet][animation] = new AnimationSheetPlus(pet + animation, frames, "", speed, animations);
         }
     }
  
