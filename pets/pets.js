@@ -20,10 +20,10 @@
         constructor() {
             super("piggieBuddy", {
                 about: {
-                    name: GM_info.script.name,
-                    version: GM_info.script.version,
-                    author: GM_info.script.author,
-                    description: GM_info.script.description
+                    name: "FlatMMO+ Piggie",
+                    version: "0.0.3",
+                    author: "Dounford",
+                    description: "A Buddy Pig"
                 },
                 config: [
                     {
