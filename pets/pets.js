@@ -45,6 +45,10 @@
                                 value: "beer",
                                 label: "Beer"
                             },
+                            {
+                                value: "capybara",
+                                label: "Capybara"
+                            },
                         ]
                     }
                 ]
@@ -56,11 +60,12 @@
         }
 
         onConfigsChanged() {
-            this.currentPet = this.config["pet"];
+            this.changePet(this.config["pet"] || "pig");
         }
         
         onPaint() {
             if(this.config["showPet"] === false) {return}
+            if(FlatMMOPlus.loggedIn === false) {return}
             //Draw pig
             if (players[Globals.local_username].face_left) {
                 ctx.save();
@@ -134,8 +139,10 @@
         
         changePet(pet) {
             this.currentPet = pet;
-            if(!this.pets[this.currentPet].hasOwnProperty(this.currentAction)) {
+            if(!this.pets[this.currentPet]?.hasOwnProperty(this.currentAction)) {
                 this.currentAction = "stand";
+            } else if (FlatMMOPlus.currentAction !== this.currentAction) {
+                this.currentAction = FlatMMOPlus.currentAction;
             }
         }
 
@@ -152,6 +159,9 @@
             
             this.pets.beer = {};
             this.registerAnimation("beer","stand","2",50);
+            
+            this.pets.capybara = {};
+            this.registerAnimation("capybara","stand","2",50);
         }
 
         registerAnimation(pet, animation, frames, speed) {
