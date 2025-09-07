@@ -60,7 +60,7 @@
         }
 
         onConfigsChanged() {
-            this.changePet(this.config["pet"] || "pig");
+            this.changePet(this.config["pet"]);
         }
         
         onPaint() {
@@ -139,9 +139,8 @@
         
         changePet(pet) {
             this.currentPet = pet;
-            if(!this.pets[this.currentPet]?.hasOwnProperty(this.currentAction)) {
-                this.currentAction = "stand";
-            } else if (FlatMMOPlus.currentAction !== this.currentAction) {
+            this.currentAction = "stand";
+            if(FlatMMOPlus.currentAction in this.pets[this.currentPet]) {
                 this.currentAction = FlatMMOPlus.currentAction;
             }
         }
