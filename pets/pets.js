@@ -32,12 +32,31 @@
 						type: "boolean",
 						default: true
 					},
+                    {
+                        id: "pet",
+                        label: "Pet",
+                        type: "select",
+                        options: [
+                            {
+                                value: "pig",
+                                label: "Pig"
+                            },
+                            {
+                                value: "beer",
+                                label: "Beer"
+                            },
+                        ]
+                    }
                 ]
             });
 
             this.currentPet = "pig";
             this.currentAction = "stand";
             this.pets = {}
+        }
+
+        onConfigsChanged() {
+            this.currentPet = this.config["pet"];
         }
         
         onPaint() {
@@ -130,6 +149,9 @@
             this.registerAnimation("pig","harpoon","2",25);
             this.registerAnimation("pig","mine_rock","2",15);
             this.registerAnimation("pig","chop_tree","2",20);
+            
+            this.pets.beer = {};
+            this.registerAnimation("beer","stand","2",50);
         }
 
         registerAnimation(pet, animation, frames, speed) {
