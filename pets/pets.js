@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Piggie
 // @namespace    com.dounford.flatmmo.piggie
-// @version      1.0.0
+// @version      1.1.1
 // @description  A Buddy Pig
 // @author       Dounford
 // @license      MIT
@@ -21,7 +21,7 @@
             super("piggieBuddy", {
                 about: {
                     name: "FlatMMO+ Piggie",
-                    version: "1.0.0",
+                    version: "1.1.1",
                     author: "Dounford",
                     description: "A Buddy Pig"
                 },
@@ -140,7 +140,7 @@
         changePet(pet) {
             this.currentPet = pet;
             this.currentAction = "stand";
-            if(FlatMMOPlus.currentAction in this.pets[this.currentPet]) {
+            if(this.pets[this.currentPet]?.hasOwnProperty(FlatMMOPlus.currentAction)) {
                 this.currentAction = FlatMMOPlus.currentAction;
             }
         }
