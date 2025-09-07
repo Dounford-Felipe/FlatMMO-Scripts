@@ -1,29 +1,27 @@
 // ==UserScript==
-// @name         FlatMMO+ Piggie
-// @namespace    com.dounford.flatmmo.piggie
-// @version      1.1.1
-// @description  A Buddy Pig
+// @name         FlatMMO+ Pets
+// @namespace    com.dounford.flatmmo.pets
+// @version      1.1.2
+// @description  Adds custom Pets to the game
 // @author       Dounford
 // @license      MIT
 // @match        *://flatmmo.com/play.php*
 // @grant        none
 // @require      https://update.greasyfork.org/scripts/544062/FlatMMOPlus.js
-// @downloadURL https://update.greasyfork.org/scripts/547463/FlatMMO%2B%20Piggie.user.js
-// @updateURL https://update.greasyfork.org/scripts/547463/FlatMMO%2B%20Piggie.meta.js
 // ==/UserScript==
  
 (function() {
     'use strict';
 
  
-    class piggieBuddy extends FlatMMOPlusPlugin {
+    class pets extends FlatMMOPlusPlugin {
         constructor() {
-            super("piggieBuddy", {
+            super("petsBuddy", {
                 about: {
-                    name: "FlatMMO+ Piggie",
-                    version: "1.1.1",
+                    name: "FlatMMO+ Pets",
+                    version: "1.1.2",
                     author: "Dounford",
-                    description: "A Buddy Pig"
+                    description: "Adds custom Pets to the game"
                 },
                 config: [
                     {
@@ -79,55 +77,6 @@
  
         
         onLogin() {
-            if(FlatMMOPlus.version <= "0.0.8") {
-                //alert("This plugin requires FlatMMO+ 1.0.0 or later\nYour current version is " + FlatMMOPlus.version);
-                //return;
-                class AnimationSheetPlus {
-                    constructor(filename, frames, path, speed, images) {
-                        this.filename = filename;
-                        this.running = false;
-                        this.frame_at = 0;
-                        this.FRAMES = frames;
-                        this.SPEED = speed;
-                        this.speed_at = 0;
-                        this.animation_tick_at = animation_tick;
-                        this.images = []
-                        for(var i = 1; i <= this.FRAMES; i++) {
-                            let image = new Image();
-                            if(images) {
-                                image.src = images[i - 1]
-                            } else {
-                                image.src =  path + filename + i + ".png";
-                            }
-                            this.images.push(image);
-                        }
-                    }
-
-                    get_frame() {
-                        if(this.FRAMES > 0) {
-                            if(this.SPEED == this.speed_at) {
-                                //swtich frames
-                                if(this.animation_tick_at != animation_tick) {
-                                    this.frame_at++;
-                                    this.animation_tick_at = animation_tick;
-                                }
-                                
-                                if(this.FRAMES == this.frame_at) {
-                                    this.frame_at = 0;
-                                }
-                                this.speed_at = 0;
-                            } else {
-                                this.speed_at++;
-                            }
-                            return this.images[this.frame_at];
-                        } else {
-                            return this.images[0];
-                        } 
-                    }
-                }
-            window.AnimationSheetPlus = AnimationSheetPlus
-            }
-
             this.addPets()
         }
 
@@ -172,7 +121,7 @@
         }
     }
  
-    const plugin = new piggieBuddy();
+    const plugin = new pets();
     FlatMMOPlus.registerPlugin(plugin);
  
 })();

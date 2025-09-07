@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Reminders
 // @namespace    com.dounford.flatmmo.reminder
-// @version      0.0.2
+// @version      0.0.3
 // @description  Adds reminders to the game
 // @author       Dounford
 // @license      MIT
@@ -16,7 +16,7 @@
  
     class RemindersPlugin extends FlatMMOPlusPlugin {
         constructor() {
-            super("sample", {
+            super("reminders", {
                 about: {
                     name: "Reminder",
                     version: "0.0.1",
