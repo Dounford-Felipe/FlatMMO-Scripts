@@ -45,16 +45,25 @@
                         y: 0,
                         name: "coins"
                     }
+                ],
+                m1001_1001: [
+                    {
+                        x: 18,
+                        y: 4,
+                        width: 128,
+                        height: 128,
+                        name: "apples"
+                    }
                 ]
             }
         }
         
-        onPaintObjects() {
+        onPaint() {
             if(FlatMMOPlus.loggedIn === false) {return}
             if(this.config["showItems"] === false) {return}
             if(!this.maps.hasOwnProperty(current_map)) {return}
             this.maps[current_map].forEach(item => {
-                ctx.drawImage(this.decorations[item.name].get_frame(), item.x * 64, item.y * 64);
+                ctx.drawImage(this.decorations[item.name].get_frame(), item.x * 64, item.y * 64, item.width || 64, item.height || 64);
             });
         }
  
@@ -65,9 +74,10 @@
 
         addDecoration() {
             this.decorations.coins = new AnimationSheetPlus("coins", 1, "", 50, ["https://flatmmo.com/images/items/coins.png"])
+            this.registerAnimation("apples", 1);
         }
 
-        registerAnimation(item, frames, speed) {
+        registerAnimation(item, frames, speed = 50) {
             const animations = [];
             for (let i = 0; i < frames; i++) {
                 animations.push(`https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/decorations/images/${item}${i}.png`);
