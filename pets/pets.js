@@ -126,9 +126,11 @@
             
             this.pets.blackSlimeCat = {};
             this.registerAnimation("blackSlimeCat","stand","2",50);
-
+            
             this.pets.calicoSlimeCat = {};
             this.registerAnimation("calicoSlimeCat","stand","2",50);
+            this.registerAnimation("calicoSlimeCat","walk","2",10);
+            this.registerAnimation("calicoSlimeCat","attack","2",20);
 
             this.pets.pizza = {};
             this.registerAnimation("pizza","stand","2",50);
