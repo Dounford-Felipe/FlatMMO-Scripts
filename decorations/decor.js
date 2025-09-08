@@ -54,6 +54,29 @@
                         height: 320,
                         name: "apples"
                     }
+                ],
+                m1007_1000: [
+                    {
+                        "x": 17,
+                        "y": 2,
+                        "width": 256,
+                        "height": 320,
+                        "name": "apples"
+                    },
+                    {
+                        "x": 2,
+                        "y": 6,
+                        "width": 256,
+                        "height": 320,
+                        "name": "apples"
+                    },
+                    {
+                        "x": 7,
+                        "y": 8,
+                        "width": 256,
+                        "height": 320,
+                        "name": "apples"
+                    }
                 ]
             }
         }
