@@ -153,12 +153,16 @@
             this.addDecoration()
         }
 
-        addMap() {
+        addMap(item) {
+            if(!this.decorations.hasOwnProperty(item)) {
+                console.log(item, "is not defined");
+                return
+            }
             this.maps[current_map] = {
                 overlays: [],
                 objects: [
                     {
-                        "name": "picnicBlanket",
+                        "name": item,
                         "x": 0,
                         "y": 0,
                         "tile_width": 1,
@@ -169,6 +173,9 @@
         }
 
         addDecoration() {
+            //Furniture
+            this.registerAnimation("brownWardrobe", 1);
+
             //Trees
             this.registerAnimation("apples", 1);
 
