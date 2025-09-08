@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Pets
 // @namespace    com.dounford.flatmmo.pets
-// @version      1.1.2
+// @version      1.2
 // @description  Adds custom Pets to the game
 // @author       Dounford
 // @license      MIT
@@ -40,16 +40,24 @@
                                 label: "Pig"
                             },
                             {
-                                value: "beer",
-                                label: "Beer"
+                                value: "blackSlimeCat",
+                                label: "Black Slime Cat"
+                            },
+                            {
+                                value: "calicoSlimeCat",
+                                label: "Calico Slime Cat"
+                            },
+                            {
+                                value: "pizza",
+                                label: "Pizza"
                             },
                             {
                                 value: "capybara",
                                 label: "Capybara"
                             },
                             {
-                                value: "blackSlimeCat",
-                                label: "Black Slime Cat"
+                                value: "beer",
+                                label: "Beer"
                             },
                         ]
                     }
@@ -118,6 +126,12 @@
             
             this.pets.blackSlimeCat = {};
             this.registerAnimation("blackSlimeCat","stand","2",50);
+
+            this.pets.calicoSlimeCat = {};
+            this.registerAnimation("calicoSlimeCat","stand","2",50);
+
+            this.pets.pizza = {};
+            this.registerAnimation("pizza","stand","2",50);
         }
 
         registerAnimation(pet, animation, frames, speed) {
