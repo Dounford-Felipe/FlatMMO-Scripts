@@ -48,35 +48,42 @@
                 ],
                 m1001_1001: [
                     {
+                        name: "apples",
                         x: 18,
                         y: 4,
-                        width: 256,
-                        height: 320,
-                        name: "apples"
+                        tile_width: 4,
+                        tile_height: 5,
                     }
                 ],
                 m1007_1000: [
                     {
+                        "name": "apples",
                         "x": 17,
                         "y": 2,
-                        "width": 256,
-                        "height": 320,
-                        "name": "apples"
+                        tile_width: 4,
+                        tile_height: 5,
                     },
                     {
+                        "name": "apples",
                         "x": 2,
                         "y": 6,
-                        "width": 256,
-                        "height": 320,
-                        "name": "apples"
+                        tile_width: 4,
+                        tile_height: 5,
                     },
                     {
+                        "name": "apples",
                         "x": 7,
                         "y": 8,
-                        "width": 256,
-                        "height": 320,
-                        "name": "apples"
-                    }
+                        tile_width: 4,
+                        tile_height: 5,
+                    },
+                    {
+                        "name": "picnicBlanket",
+                        "x": 0,
+                        "y": 0,
+                        tile_width: 2,
+                        tile_height: 2,
+                    },
                 ]
             }
         }
@@ -85,8 +92,11 @@
             if(FlatMMOPlus.loggedIn === false) {return}
             if(this.config["showItems"] === false) {return}
             if(!this.maps.hasOwnProperty(current_map)) {return}
+            const mousePos = get_postition_from_pixel(mouse_over_now.x, mouse_over_now.y)
             this.maps[current_map].forEach(item => {
-                ctx.drawImage(this.decorations[item.name].get_frame(), item.x * 64, item.y * 64, item.width || 64, item.height || 64);
+                ctx.globalAlpha = is_mouse_on_map_object(mousePos.x, mousePos.y, item) ? 0.5 : 1;
+                ctx.drawImage(this.decorations[item.name].get_frame(), item.x * 64, item.y * 64, (item.tile_width || 1) * 64, (item.tile_height || 1) * 64);
+                ctx.globalAlpha = 1;
             });
         }
  
@@ -98,6 +108,7 @@
         addDecoration() {
             this.decorations.coins = new AnimationSheetPlus("coins", 1, "", 50, ["https://flatmmo.com/images/items/coins.png"])
             this.registerAnimation("apples", 1);
+            this.registerAnimation("picnicBlanket", 1);
         }
 
         registerAnimation(item, frames, speed = 50) {
