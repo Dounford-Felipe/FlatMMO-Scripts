@@ -50,8 +50,8 @@
                     {
                         x: 18,
                         y: 4,
-                        width: 128,
-                        height: 128,
+                        width: 256,
+                        height: 320,
                         name: "apples"
                     }
                 ]

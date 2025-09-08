@@ -47,6 +47,10 @@
                                 value: "capybara",
                                 label: "Capybara"
                             },
+                            {
+                                value: "blackSlimeCat",
+                                label: "Black Slime Cat"
+                            },
                         ]
                     }
                 ]
@@ -64,6 +68,7 @@
         onPaint() {
             if(this.config["showPet"] === false) {return}
             if(FlatMMOPlus.loggedIn === false) {return}
+            if(this.pets[this.currentPet].hasOwnProperty(this.currentAction))
             //Draw pig
             if (players[Globals.local_username].face_left) {
                 ctx.save();
@@ -110,6 +115,9 @@
             
             this.pets.capybara = {};
             this.registerAnimation("capybara","stand","2",50);
+            
+            this.pets.blackSlimeCat = {};
+            this.registerAnimation("blackSlimeCat","stand","2",50);
         }
 
         registerAnimation(pet, animation, frames, speed) {
