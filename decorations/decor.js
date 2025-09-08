@@ -120,7 +120,19 @@
                             tile_height: 5,
                         },
                     ]
-                }
+                },
+                m1000_1000_inside1: {
+                    overlays: [],
+                    objects: [
+                        {
+                            "name": "brownWardrobe",
+                            "x": 8,
+                            "y": 4,
+                            "tile_width": 2.5,
+                            "tile_height": 2.5
+                        }
+                    ]
+                },
             }
         };
 
