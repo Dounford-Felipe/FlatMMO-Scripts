@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Pets
-// @namespace    com.dounford.flatmmo.pets
-// @version      1.2
+// @namespace    com.dounford.flatmmo.piggie
+// @version      1.2.1
 // @description  Adds custom Pets to the game
 // @author       Dounford
 // @license      MIT
