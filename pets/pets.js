@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Pets
 // @namespace    com.dounford.flatmmo.piggie
-// @version      1.2.1
+// @version      1.2.2
 // @description  Adds custom Pets to the game
 // @author       Dounford
 // @license      MIT
@@ -143,7 +143,7 @@
             for (let i = 0; i < frames; i++) {
                 animations.push(`https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/${pet}/${animation}${i}.png`);
             }
-            this.pets[pet][animation] = new AnimationSheetPlus(pet + animation, frames, "", speed, animations);
+            this.pets[pet][animation] = new AnimationSheetPlus(pet + animation, frames, speed, animations);
         }
     }
  

@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         FlatMMO+ SamplePlugin
 // @namespace    com.dounford.flatmmo.sample
-// @version      0.0.1
-// @description  FlatMMO+ sample plugin
+// @version      0.0.2
+// @description  FlatMMO+ Template Script
 // @author       Anwinity ported by Dounford
 // @license      MIT
 // @match        *://flatmmo.com/play.php*
@@ -180,6 +180,10 @@
 
             //Sends messages to game server
             FlatMMOPlus.sendMessage("message");
+
+            //You can have screen notifications
+            //FlatMMOPlus.addNotification(notificationName, imageSrc, title, text, ticks, textColor);
+            FlatMMOPlus.addNotification("test", "https://flatmmo.com/images/ui/hp_med.png", "TEST", "I'm a message", 18000, "blue");
 
             const sheet = new AnimationSheetPlus("name", 5, "", 50, ["url.png","url2.png", "..."])
         }
