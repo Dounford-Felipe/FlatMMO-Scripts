@@ -10,17 +10,22 @@
             padding: 0;
             background-color: black;
             color: white;
+            image-rendering: pixelated;
         }
+
         main {
             padding: 0 60px;
         }
+
         a {
             text-decoration: none;
         }
+
         .tabBtns {
             display: flex;
             gap: 10px;
         }
+
         .tabBtn {
             padding: 10px;
             color: #f8b700;
@@ -32,6 +37,7 @@
                 cursor: pointer;
             }
         }
+
         .activeTab {
             background-color: #f8b700;
             color: black;
@@ -42,6 +48,7 @@
             justify-content: space-evenly;
             align-items: center;
         }
+
         .equipmentSlot {
             display: flex;
             align-items: center;
@@ -62,13 +69,64 @@
             display: grid;
             grid-template-columns: repeat(4, auto);
             justify-content: space-around;
+            row-gap: 10px;
 
             >div {
                 display: flex;
             }
+        }
+
+        .stats {
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin-right: 5px;
+            border-image: linear-gradient(to right, var(--borderColorOne) 50%, var(--borderColorTwo) 50%) 1;
+            border-width: 4px;
+            border-style: solid;
+
+            picture {
+                display: flex;
+                &::after {
+                    content: "";
+                    position: absolute;
+                    z-index: -1;
+                    inset: 0;
+                    padding: 5px; /* the border thickness */
+                    border-radius: 100%;
+                    background: linear-gradient(to right, var(--borderColorOne) 50%, var(--borderColorTwo) 50%);
+                    mask: 
+                    linear-gradient(#000 0 0) exclude, 
+                    linear-gradient(#000 0 0) content-box;
+                }
+            }
+
+                img {
+                    width: 32px;
+                    height: 32px;
+                    margin: 10px;
+                }
+        }
+
+        #skills {
+            display: grid;
+            grid-template-columns: repeat(4, auto);
+            justify-items: center;
+
+            >div {
+                width: 250px;
+                height: 250px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-evenly;
+                align-items: center;
+                font-size: 1.7rem;
+                background-color: grey;
+                margin-bottom: 20px;
+            }
+
             img {
-                width: 32px;
-                height: 32px;
+                width: 100px;
             }
         }
     </style>
@@ -118,68 +176,153 @@
             </div>
             <div id="stats">
                 <div>
-                    <div><img src="https://flatmmo.com/images/ui/hp_med.png"></div>
+                    <div class="stats" style="--borderColorOne:red;--borderColorTwo:red;"><picture><img src="https://flatmmo.com/images/ui/hp_med.png"></picture></div>
                     <div>
                         <span>HEALTH</span>
                         <br>
-                        <span>3213</span>
+                        <span id="health">80</span>
                     </div>
                 </div>
                 <div>
-                    <div><img src="https://flatmmo.com/images/icons/damage.png"></div>
+                    <div class="stats" style="--borderColorOne:red;--borderColorTwo:red;"><picture><img src="https://flatmmo.com/images/icons/damage.png"></picture></div>
                     <div>
                         <span>MELEE DAMAGE</span>
                         <br>
-                        <span>3213</span>
+                        <span id="damage">20</span>
                     </div>
                 </div>
                 <div>
-                    <div><img src="https://flatmmo.com/images/icons/arrow_damage.png"></div>
+                    <div class="stats" style="--borderColorOne:green;--borderColorTwo:green;"><picture><img src="https://flatmmo.com/images/icons/arrow_damage.png"></picture></div>
                     <div>
                         <span>ARCHERY DAMAGE</span>
                         <br>
-                        <span>3213</span>
+                        <span id="archeryDamage">32</span>
                     </div>
                 </div>
                 <div>
-                    <div><img src="https://flatmmo.com/images/icons/magic_damage.png"></div>
+                    <div class="stats" style="--borderColorOne:blue;--borderColorTwo:blue;"><picture><img src="https://flatmmo.com/images/icons/magic_damage.png"></picture></div>
                     <div>
                         <span>MAGIC DAMAGE</span>
                         <br>
-                        <span>3213</span>
+                        <span id="magicDamage">3</span>
                     </div>
                 </div>
                 <div>
-                    <div><img src="https://flatmmo.com/images/ui/sleep.png"></div>
+                    <div class="stats" style="--borderColorOne:white;--borderColorTwo:white;"><picture><img src="https://flatmmo.com/images/ui/sleep.png"></picture></div>
                     <div>
                         <span>SLEEP</span>
                         <br>
-                        <span>32</span>
+                        <span id="sleep">132</span>
                     </div>
                 </div>
                 <div>
-                    <div><img src="https://flatmmo.com/images/icons/accuracy.png"></div>
+                    <div class="stats" style="--borderColorOne:black;--borderColorTwo:black;filter:invert()"><picture><img src="https://flatmmo.com/images/icons/accuracy.png"></picture></div>
                     <div>
                         <span>ACCURACY</span>
                         <br>
-                        <span>3213</span>
+                        <span id="accuracy">13</span>
                     </div>
                 </div>
                 <div>
-                    <div><img src="https://flatmmo.com/images/icons/defence.png"></div>
+                    <div class="stats" style="--borderColorOne:red;--borderColorTwo:green;"><picture><img src="https://flatmmo.com/images/icons/defence.png"></picture></div>
                     <div>
                         <span>DEFENCE</span>
                         <br>
-                        <span>3213</span>
+                        <span id="defence">31</span>
                     </div>
                 </div>
                 <div>
-                    <div><img src="https://flatmmo.com/images/icons/magic_defence.png"></div>
+                    <div class="stats" style="--borderColorOne:blue;--borderColorTwo:blue;"><picture><img src="https://flatmmo.com/images/icons/magic_defence.png"></picture></div>
                     <div>
                         <span>MAGIC DEFENSE</span>
                         <br>
-                        <span>3213</span>
+                        <span id="magicDefence">3</span>
                     </div>
+                </div>
+            </div>
+            <br>
+            <hr>
+            <br>
+            <div id="skills">
+                <div>
+                    <img src="https://flatmmo.com/images/icons/melee_large.png">
+                    <span>MELEE</span>
+                    <span id="meleeLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/archery_large.png">
+                    <span>ARCHERY</span>
+                    <span id="archeryLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/magic_large.png">
+                    <span>MAGIC</span>
+                    <span id="magicLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/health_large.png">
+                    <span>HEALTH</span>
+                    <span id="healthLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/worship_large.png">
+                    <span>WORSHIP</span>
+                    <span id="worshipLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/mining_large.png">
+                    <span>MINING</span>
+                    <span id="miningLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/forging_large.png">
+                    <span>FORGING</span>
+                    <span id="forgingLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/crafting_large.png">
+                    <span>CRAFTING</span>
+                    <span id="craftingLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/enchantment_large.png">
+                    <span>ENCHANTMENT</span>
+                    <span id="enchantmentLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/fishing_large.png">
+                    <span>FISHING</span>
+                    <span id="fishingLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/woodcutting_large.png">
+                    <span>WOODCUTTING</span>
+                    <span id="woodcuttingLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/firemake_large.png">
+                    <span>FIREMAKE</span>
+                    <span id="firemakeLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/cooking_large.png">
+                    <span>COOKING</span>
+                    <span id="cookingLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/brewing_large.png">
+                    <span>BREWING</span>
+                    <span id="brewingLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/farming_large.png">
+                    <span>FARMING</span>
+                    <span id="farmingLevel">10</span>
+                </div>
+                <div>
+                    <img src="https://flatmmo.com/images/icons/hunting_large.png">
+                    <span>HUNTING</span>
+                    <span id="huntingLevel">10</span>
                 </div>
             </div>
         </div>
