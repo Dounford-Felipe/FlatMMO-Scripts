@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: white;
+        }
+        main {
+            padding: 0 60px;
+        }
+        a {
+            text-decoration: none;
+        }
+        .tabBtns {
+            display: flex;
+            gap: 10px;
+        }
+        .tabBtn {
+            padding: 10px;
+            color: #f8b700;
+            border-radius: 2px;
+            
+            &:hover {
+                background-color: #f8b700;
+                color: black;
+                cursor: pointer;
+            }
+        }
+        .activeTab {
+            background-color: #f8b700;
+            color: black;
+        }
+
+        #equipment {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+        .equipmentSlot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            margin-bottom: 20px;
+
+            img {
+                background-color: aliceblue;
+            }
+
+            a {
+                text-decoration: none;
+            }
+        }
+
+        #stats {
+            display: grid;
+            grid-template-columns: repeat(4, auto);
+            justify-content: space-around;
+
+            >div {
+                display: flex;
+            }
+            img {
+                width: 32px;
+                height: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div id="header" style="display: flex;align-items: center;">
+        <div style="margin-right: 20px;">
+            <img src="https://flatmmo.com/images/items/diamond.png" id="profileIcon" width="78">
+        </div>
+        <div style="font-size: 3rem;margin-right: 20px;">
+            <a id="username" href="#">felipewolf</a>
+        </div>
+        <div>
+            <img src="https://flatmmo.com/images/ui/skills_med.png" width="16">
+            <span id="level">1,000</span>
+            <img src="https://flatmmo.com/images/ui/quests_med.png" width="16">
+            <span id="quests">1/20</span>
+            <img src="https://flatmmo.com/images/ui/achievements_med.png" width="16">
+            <span id="achievements">1/80</span>
+        </div>
+    </div>
+    <div class="tabBtns">
+        <div id="skillsBtn" class="tabBtn activeTab" onclick="switchTab('skills')">CHARACTER/SKILLS</div>
+        <div id="achievementsBtn" class="tabBtn" onclick="switchTab('achievements')">ACHIEVEMENTS</div>
+        <div id="minigamesBtn" class="tabBtn" onclick="switchTab('minigames')">MINIGAMES</div>
+        <div id="enemiesBtn" class="tabBtn" onclick="switchTab('enemies')">ENEMIES</div>
+        <div id="bankBtn" class="tabBtn" onclick="switchTab('bank')">BANK</div>
+    </div>
+    <div id="tabs">
+        <div id="tab-skills">
+            <div id="equipment">
+                <div>
+                    <div class="equipmentSlot" id="headSlotDiv"><img id="headSlot" src="https://flatmmo.com/images/items/titanium_helmet.png"><a id="hatSlotName" href="">Titanium Helmet</a></div>
+                    <div class="equipmentSlot" id="bodySlotDiv"><img id="bodySlot" src="https://flatmmo.com/images/items/titanium_body.png"><a id="bodySlotName" href="">Titanium Body</a></div>
+                    <div class="equipmentSlot" id="legsSlotDiv"><img id="legsSlot" src="https://flatmmo.com/images/items/titanium_legs.png"><a id="legsSlotName" href="">Titanium Legs</a></div>
+                    <div class="equipmentSlot" id="bootsSlotDiv"><img id="bootsSlot" src="https://flatmmo.com/images/items/titanium_boots.png"><a id="bootsSlotName" href="">Titanium Boots</a></div>
+                    <div class="equipmentSlot" id="glovesSlotDiv"><img id="glovesSlot" src="https://flatmmo.com/images/items/titanium_gloves.png"><a id="glovesSlotName" href="">Titanium Gloves</a></div>
+                </div>
+                <div><canvas id="character" style="image-rendering: pixelated;width: 500px;" width="128" height="136"></canvas></div>
+                <div>
+                    <div class="equipmentSlot" id="hatSlotDiv"><a id="hatSlotName" href="">Farmer Hat</a><img id="hatSlot" src="https://flatmmo.com/images/items/straw_hat.png"></div>
+                    <div class="equipmentSlot" id="necklaceSlotDiv"><a id="necklaceSlotName" href="">Sapphire Necklace</a><img id="necklaceSlot" src="https://flatmmo.com/images/items/sapphire_necklace.png"></div>
+                    <div class="equipmentSlot" id="weaponSlotDiv"><a id="weaponSlotName" href="">Titanium Mace</a><img id="weaponSlot" src="https://flatmmo.com/images/items/titanium_mace.png"></div>
+                    <div class="equipmentSlot" id="sigilSlotDiv"><a id="sigilSlotName" href="">Tree Sigil</a><img id="sigilSlot" src="https://flatmmo.com/images/items/tree_sigil.png"></div>
+                </div>
+            </div>
+            <div id="stats">
+                <div>
+                    <div><img src="https://flatmmo.com/images/ui/hp_med.png"></div>
+                    <div>
+                        <span>HEALTH</span>
+                        <br>
+                        <span>3213</span>
+                    </div>
+                </div>
+                <div>
+                    <div><img src="https://flatmmo.com/images/icons/damage.png"></div>
+                    <div>
+                        <span>MELEE DAMAGE</span>
+                        <br>
+                        <span>3213</span>
+                    </div>
+                </div>
+                <div>
+                    <div><img src="https://flatmmo.com/images/icons/arrow_damage.png"></div>
+                    <div>
+                        <span>ARCHERY DAMAGE</span>
+                        <br>
+                        <span>3213</span>
+                    </div>
+                </div>
+                <div>
+                    <div><img src="https://flatmmo.com/images/icons/magic_damage.png"></div>
+                    <div>
+                        <span>MAGIC DAMAGE</span>
+                        <br>
+                        <span>3213</span>
+                    </div>
+                </div>
+                <div>
+                    <div><img src="https://flatmmo.com/images/ui/sleep.png"></div>
+                    <div>
+                        <span>SLEEP</span>
+                        <br>
+                        <span>32</span>
+                    </div>
+                </div>
+                <div>
+                    <div><img src="https://flatmmo.com/images/icons/accuracy.png"></div>
+                    <div>
+                        <span>ACCURACY</span>
+                        <br>
+                        <span>3213</span>
+                    </div>
+                </div>
+                <div>
+                    <div><img src="https://flatmmo.com/images/icons/defence.png"></div>
+                    <div>
+                        <span>DEFENCE</span>
+                        <br>
+                        <span>3213</span>
+                    </div>
+                </div>
+                <div>
+                    <div><img src="https://flatmmo.com/images/icons/magic_defence.png"></div>
+                    <div>
+                        <span>MAGIC DEFENSE</span>
+                        <br>
+                        <span>3213</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tab-achievements" style="display: none;"></div>
+        <div id="tab-minigames" style="display: none;"></div>
+        <div id="tab-enemies" style="display: none;"></div>
+        <div id="tab-bank" style="display: none;"></div>
+    </div>
+</main>
+    <script src="utils.js"></script>
+    <script src="character.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
