@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Notepad
 // @namespace    com.dounford.flatmmo.notepad
-// @version      1.0.0
+// @version      1.1.0
 // @description  Ingame notepad
 // @author       Dounford
 // @license      MIT
@@ -23,21 +23,22 @@
                     description: GM_info.script.description
                 },
             });
+            this.notes = {}
 
-            this.notes = [];
+            //this.notes = [];
             this.userNotes = {};
 
-            this.currentTab = 0;
+            this.currentTab = '82f91393-49a7-4cda-b080-18763ed21fd3';
             this.currentUser = "";
         }
         
         onLogin() {
-            this.notes = JSON.parse(localStorage.getItem("flatNotes")) || [{name:"New Tab", content:""}];
+            this.notes = JSON.parse(localStorage.getItem("flatNotes")) || {'82f91393-49a7-4cda-b080-18763ed21fd3':{name:"New Tab", content:""}};
             this.userNotes = JSON.parse(localStorage.getItem("flatUserNotes")) || {};
             this.addStyle();
             this.addUI();
 
-            this.switchTab(0);
+            this.switchTab(Object.keys(this.notes)[0]);
         }
         
         onMessageReceived(data) {
@@ -90,7 +91,7 @@
                     }
                 }
                 .flatNotes-currentTab {
-                    
+                    background-color: var(--fmp-ui-element-active-bg, darkgray);
                 }
             `
             document.head.appendChild(style);
@@ -99,7 +100,7 @@
         addUI() {
             //Button to open global notes bellow inventory
             const openBtn = `<div id="openFlatNotes" onclick="open_modal('flatNotes')" class="bank-btn hover">Open Notepad</div>`;
-            document.querySelector("#ui-panel-inventory center").insertAdjacentHTML("beforeend", openBtn);
+            document.getElementById("bank-all-btn").insertAdjacentHTML("afterend", openBtn);
 
             //Player's notes
             const playerTextArea = `<br><textarea id="flatNotes-playerNotes" style="height: 50vh;width: -webkit-fill-available;"></textarea><br>`
@@ -110,7 +111,7 @@
             }
 
             //Notes
-            const flatNotes = `<div id="flatNotes" class="modal" style="display: block;">
+            const flatNotes = `<div id="flatNotes" class="modal">
                 <div class="modal-content modal-content-lg">
                     <div class="flatNotes-header"">
                         <h1>Notepad</h1>
@@ -130,30 +131,32 @@
 
 
             //Create tabs
-            this.notes.forEach(note=>this.newTab(note.name));
+            Object.keys(this.notes).forEach(id=>this.newTab(this.notes[id].name, id));
         }
 
         closeNotes() {
             document.getElementById("flatNotes").style.display = "none";
         }
 
-        newTab(name) {
+        newTab(name, id) {
+            id = id || crypto.randomUUID();
             if (name === undefined) {
                 name = "New Tab";
-                this.notes.push({
+                this.notes[id] = {
                     name,
                     content: ""
-                });
+                };
             }
             const tab = document.createElement("div");
             const nameSpan = document.createElement("span");
             const closeBtn = document.createElement("span");
 
+            tab.setAttribute("data-noteid", id);
             nameSpan.innerText = name;
             nameSpan.contentEditable = "false";
             tab.addEventListener("click", function(e) {
                 if(e.target.className === "close") return;
-                FlatMMOPlus.plugins.notepad.switchTab(this)
+                FlatMMOPlus.plugins.notepad.switchTab(id)
             });
             tab.addEventListener("contextmenu", function(e) {
                 e.preventDefault();
@@ -163,59 +166,49 @@
             });
             nameSpan.addEventListener("focusout", function(e) {
                 this.contentEditable = "false";
-                FlatMMOPlus.plugins.notepad.renameTab(this)
+                FlatMMOPlus.plugins.notepad.renameTab(id)
             });
 
             closeBtn.innerText = "×"
             closeBtn.className = "flatNotes-close hover";
             closeBtn.addEventListener("click", function(e) {
-                FlatMMOPlus.plugins.notepad.closeTab(this.parentNode)
+                FlatMMOPlus.plugins.notepad.closeTab(id)
             });
 
             tab.appendChild(nameSpan);
             tab.appendChild(closeBtn);
 
             document.getElementById("flatNotes-newTab").insertAdjacentElement("beforebegin", tab);
+            this.switchTab(id);
         }
 
-        closeTab(el) {
-            const tab = this.getTabIndex(el);
-            el.remove();
-            this.notes.splice(tab, 1);
+        closeTab(id) {
+            const tab = document.querySelector(`[data-noteid="${id}"]`)
+            tab.remove();
+            delete this.notes[id];
             //At least one tab should always exist
-            if(this.notes.length === 0) {
+            if(Object.keys(this.notes).length === 0) {
                 this.newTab();
             }
-            if(this.currentTab === tab) {
-                this.switchTab(0);
+            if(this.currentTab === id) {
+                this.switchTab(Object.keys(this.notes)[0]);
             }
-        }
-
-        switchTab(tab) {
-            if(typeof tab == "object") {
-                tab = this.getTabIndex(tab);
-            }
-            document.querySelector(`#flatNotes-tabs div:nth-child(${(this.currentTab || 0) + 1})`)?.classList.remove("flatNotes-currentTab");
-
-            this.currentTab = tab;
-            document.querySelector(`#flatNotes-tabs div:nth-child(${tab + 1})`).classList.add("flatNotes-currentTab");
-            document.getElementById("flatNotes-textArea").value = this.notes[tab].content;
-        }
-
-        renameTab(el) {
-            const tab = this.getTabIndex(el);
-            this.notes[tab].name = el.innerText;
             this.saveNotes();
         }
 
-        getTabIndex(el) {
-            try {
-                const children = Array.from(el.parentNode.children);
-                return children.indexOf(el);
-            } catch(err) {
-                console.error(err.message);
-                console.log(el)
-            }
+        switchTab(id) {
+            document.querySelector(".flatNotes-currentTab")?.classList.remove("flatNotes-currentTab");
+
+            this.currentTab = id;
+            document.querySelector(`[data-noteid="${id}"]`)?.classList.add("flatNotes-currentTab");
+            document.getElementById("flatNotes-textArea").value = this.notes[id]?.content || "";
+            this.saveNotes();
+        }
+
+        renameTab(id) {
+            const tab = document.querySelector(`[data-noteid="${id}"] span`);
+            this.notes[id].name = tab?.innerText || "New Tab";
+            this.saveNotes();
         }
 
         saveNotes() {

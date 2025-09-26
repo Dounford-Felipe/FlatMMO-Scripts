@@ -54,5 +54,3 @@ async function loadImage(slot, piece, frame) {
 		});
 	}
 }
-
-setEquipment();drawCharacter()
