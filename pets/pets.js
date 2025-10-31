@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Pets
 // @namespace    com.dounford.flatmmo.piggie
-// @version      1.2.2
+// @version      1.3
 // @description  Adds custom Pets to the game
 // @author       Dounford
 // @license      MIT
@@ -100,8 +100,12 @@
         }
 
         onActionChanged() {
-            if(this.config.halloween && this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction + "_halloween")) {
-                this.currentAction = FlatMMOPlus.currentAction + "_halloween";
+            if(this.config.halloween && this.pets[this.currentPet].hasOwnProperty("stand_halloween")) {
+                if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction + "_halloween")) {
+                    this.currentAction = FlatMMOPlus.currentAction + "_halloween";
+                } else {
+                    this.currentAction = "stand_halloween";
+                }
             } else if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction)) {
                 this.currentAction = FlatMMOPlus.currentAction;
             }
