@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Pets
 // @namespace    com.dounford.flatmmo.piggie
-// @version      1.4
+// @version      1.4.1
 // @description  Adds custom Pets to the game
 // @author       Dounford
 // @license      MIT
@@ -46,6 +46,10 @@
                             {
                                 value: "calicoSlimeCat",
                                 label: "Calico Slime Cat"
+                            },
+                            {
+                                value: "pumpkin",
+                                label: "Pumpking"
                             },
                             {
                                 value: "pizza",
@@ -165,6 +169,9 @@
             this.pets.pizza = {};
             this.registerAnimation("pizza","stand","2",50);
             this.registerAnimation("pizza","stand_halloween","2",50);
+
+            this.pets.pumpkin = {};
+            this.registerAnimation("pumpkin","stand","2",50);
         }
 
         registerAnimation(pet, animation, frames, speed) {
