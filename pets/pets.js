@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Pets
 // @namespace    com.dounford.flatmmo.piggie
-// @version      1.3
+// @version      1.4
 // @description  Adds custom Pets to the game
 // @author       Dounford
 // @license      MIT
@@ -62,6 +62,12 @@
                         ]
                     },
                     {
+                        id: "randomize",
+                        label: "Randomize Selected Pet",
+                        type: "boolean",
+                        default: false
+                    },
+                    {
                         id: "halloween",
                         label: "Use Halloween Skin",
                         type: "boolean",
@@ -92,6 +98,9 @@
             } else {
                 ctx.drawImage(this.pets[this.currentPet][this.currentAction].get_frame(), players[Globals.local_username].client_x - 96, players[Globals.local_username].client_y - 25, 96, 96);
             }
+            if(this.config.randomize && Math.random() < 0.0000046296296296296296) {
+                this.randomizePet();
+            }
         }
  
         
@@ -115,6 +124,12 @@
             this.currentPet = pet;
             this.currentAction = "stand";
             this.onActionChanged();
+        }
+
+        randomizePet() {
+            const petArray = Object.keys(this.pets);
+            const newIndex = Math.floor(Math.random() * petArray.length);
+            this.changePet(petArray[newIndex])
         }
 
         addPets() {
