@@ -60,6 +60,12 @@
                                 label: "Beer"
                             },
                         ]
+                    },
+                    {
+                        id: "halloween",
+                        label: "Use Halloween Skin",
+                        type: "boolean",
+                        default: false
                     }
                 ]
             });
@@ -94,7 +100,9 @@
         }
 
         onActionChanged() {
-            if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction)) {
+            if(this.config.halloween && this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction + "_halloween")) {
+                this.currentAction = FlatMMOPlus.currentAction + "_halloween";
+            } else if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction)) {
                 this.currentAction = FlatMMOPlus.currentAction;
             }
         }
@@ -102,9 +110,7 @@
         changePet(pet) {
             this.currentPet = pet;
             this.currentAction = "stand";
-            if(this.pets[this.currentPet]?.hasOwnProperty(FlatMMOPlus.currentAction)) {
-                this.currentAction = FlatMMOPlus.currentAction;
-            }
+            this.onActionChanged();
         }
 
         addPets() {
@@ -117,12 +123,15 @@
             this.registerAnimation("pig","harpoon","2",25);
             this.registerAnimation("pig","mine_rock","2",15);
             this.registerAnimation("pig","chop_tree","2",20);
+            this.registerAnimation("pig","stand_halloween","2",50);
             
             this.pets.beer = {};
             this.registerAnimation("beer","stand","2",50);
+            this.registerAnimation("beer","stand_halloween","2",50);
             
             this.pets.capybara = {};
             this.registerAnimation("capybara","stand","2",50);
+            this.registerAnimation("capybara","stand_halloween","2",50);
             
             this.pets.blackSlimeCat = {};
             this.registerAnimation("blackSlimeCat","stand","2",50);
@@ -136,6 +145,7 @@
 
             this.pets.pizza = {};
             this.registerAnimation("pizza","stand","2",50);
+            this.registerAnimation("pizza","stand_halloween","2",50);
         }
 
         registerAnimation(pet, animation, frames, speed) {
