@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Pets
 // @namespace    com.dounford.flatmmo.piggie
-// @version      1.4.1
+// @version      1.5
 // @description  Adds custom Pets to the game
 // @author       Dounford
 // @license      MIT
@@ -89,7 +89,7 @@
                     },
                     {
                         id: "event",
-                        label: "Use Halloween Skin",
+                        label: "Event Skin",
                         type: "select",
                         options: [
                             {
@@ -101,7 +101,7 @@
                                 label: "Halloween"
                             },
                             {
-                                value: "chirstmas",
+                                value: "christmas",
                                 label: "Christmas"
                             }
                         ]
@@ -142,6 +142,7 @@
         }
 
         onActionChanged() {
+            if(!FlatMMOPlus.loggedIn) {return};
             if(this.pets[this.currentPet].hasOwnProperty("stand_" + this.config.event)) {
                 if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction + "_" + this.config.event)) {
                     this.currentAction = FlatMMOPlus.currentAction + "_" + this.config.event;
