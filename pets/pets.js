@@ -48,6 +48,10 @@
                                 label: "Calico Slime Cat"
                             },
                             {
+                                value: "whiteSlimeCat",
+                                label: "White Slime Cat"
+                            },
+                            {
                                 value: "pumpkin",
                                 label: "Pumpking"
                             },
@@ -63,6 +67,18 @@
                                 value: "beer",
                                 label: "Beer"
                             },
+                            {
+                                value: "gingerbreadMan",
+                                label: "Gingerbread Man"
+                            },
+                            {
+                                value: "snowman",
+                                label: "Snowman"
+                            },
+                            {
+                                value: "reindeer",
+                                label: "Reindeer"
+                            },
                         ]
                     },
                     {
@@ -72,10 +88,23 @@
                         default: false
                     },
                     {
-                        id: "halloween",
+                        id: "event",
                         label: "Use Halloween Skin",
-                        type: "boolean",
-                        default: false
+                        type: "select",
+                        options: [
+                            {
+                                value: "",
+                                label: "None"
+                            },
+                            {
+                                value: "halloween",
+                                label: "Halloween"
+                            },
+                            {
+                                value: "chirstmas",
+                                label: "Christmas"
+                            }
+                        ]
                     }
                 ]
             });
@@ -113,11 +142,11 @@
         }
 
         onActionChanged() {
-            if(this.config.halloween && this.pets[this.currentPet].hasOwnProperty("stand_halloween")) {
-                if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction + "_halloween")) {
-                    this.currentAction = FlatMMOPlus.currentAction + "_halloween";
+            if(this.pets[this.currentPet].hasOwnProperty("stand_" + this.config.event)) {
+                if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction + "_" + this.config.event)) {
+                    this.currentAction = FlatMMOPlus.currentAction + "_" + this.config.event;
                 } else {
-                    this.currentAction = "stand_halloween";
+                    this.currentAction = "stand_" + this.config.event;
                 }
             } else if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction)) {
                 this.currentAction = FlatMMOPlus.currentAction;
@@ -146,32 +175,69 @@
             this.registerAnimation("pig","harpoon","2",25);
             this.registerAnimation("pig","mine_rock","2",15);
             this.registerAnimation("pig","chop_tree","2",20);
+            //halloween
             this.registerAnimation("pig","stand_halloween","2",50);
+            //christmas
+            this.registerAnimation("pig","stand_christmas","2",50);
+            this.registerAnimation("pig","walk_christmas","4",10);
+            this.registerAnimation("pig","attack_christmas","2",20);
+            this.registerAnimation("pig","fishing_net_christmas","2",25);
+            this.registerAnimation("pig","fishing_rod_christmas","2",25);
+            this.registerAnimation("pig","harpoon_christmas","2",25);
+            this.registerAnimation("pig","mine_rock_christmas","2",15);
+            this.registerAnimation("pig","chop_tree_christmas","2",20);
             
             this.pets.beer = {};
             this.registerAnimation("beer","stand","2",50);
             this.registerAnimation("beer","stand_halloween","2",50);
+            this.registerAnimation("beer","stand_christmas","2",50);
             
             this.pets.capybara = {};
             this.registerAnimation("capybara","stand","2",50);
             this.registerAnimation("capybara","stand_halloween","2",50);
+            this.registerAnimation("capybara","stand_christmas","2",50);
             
             this.pets.blackSlimeCat = {};
             this.registerAnimation("blackSlimeCat","stand","2",50);
             this.registerAnimation("blackSlimeCat","walk","2",10);
             this.registerAnimation("blackSlimeCat","attack","2",20);
+            this.registerAnimation("blackSlimeCat","stand_christmas","2",50);
+            this.registerAnimation("blackSlimeCat","walk_christmas","2",10);
+            this.registerAnimation("blackSlimeCat","attack_christmas","2",20);
             
             this.pets.calicoSlimeCat = {};
             this.registerAnimation("calicoSlimeCat","stand","2",50);
             this.registerAnimation("calicoSlimeCat","walk","2",10);
             this.registerAnimation("calicoSlimeCat","attack","2",20);
+            this.registerAnimation("calicoSlimeCat","stand_christmas","2",50);
+            this.registerAnimation("calicoSlimeCat","walk_christmas","2",10);
+            this.registerAnimation("calicoSlimeCat","attack_christmas","2",20);
+
+            this.pets.whiteSlimeCat = {};
+            this.registerAnimation("whiteSlimeCat","stand","2",50);
+            this.registerAnimation("whiteSlimeCat","walk","2",10);
+            this.registerAnimation("whiteSlimeCat","attack","2",20);
+            this.registerAnimation("whiteSlimeCat","stand_christmas","2",50);
+            this.registerAnimation("whiteSlimeCat","walk_christmas","2",10);
+            this.registerAnimation("whiteSlimeCat","attack_christmas","2",20);
 
             this.pets.pizza = {};
             this.registerAnimation("pizza","stand","2",50);
             this.registerAnimation("pizza","stand_halloween","2",50);
+            this.registerAnimation("pizza","stand_christmas","2",50);
 
             this.pets.pumpkin = {};
             this.registerAnimation("pumpkin","stand","2",50);
+            this.registerAnimation("pumpkin","stand_christmas","2",50);
+            
+            this.pets.gingerbreadMan = {};
+            this.registerAnimation("gingerbreadMan","stand","2",50);
+            
+            this.pets.snowman = {};
+            this.registerAnimation("snowman","stand","2",50);
+            
+            this.pets.reindeer = {};
+            this.registerAnimation("reindeer","stand","2",50);
         }
 
         registerAnimation(pet, animation, frames, speed) {
