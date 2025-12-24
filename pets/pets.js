@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Pets
 // @namespace    com.dounford.flatmmo.piggie
-// @version      1.5
+// @version      1.5.0.4
 // @description  Adds custom Pets to the game
 // @author       Dounford
 // @license      MIT
@@ -19,7 +19,7 @@
             super("petsBuddy", {
                 about: {
                     name: "FlatMMO+ Pets",
-                    version: "1.1.2",
+                    version: "1.5.0.4",
                     author: "Dounford",
                     description: "Adds custom Pets to the game"
                 },
@@ -121,28 +121,31 @@
         onPaint() {
             if(this.config["showPet"] === false) {return}
             if(FlatMMOPlus.loggedIn === false) {return}
-            if(this.pets[this.currentPet].hasOwnProperty(this.currentAction))
-            //Draw pig
-            if (players[Globals.local_username].face_left) {
-                ctx.save();
-                ctx.scale(-1, 1);
-                ctx.drawImage(this.pets[this.currentPet][this.currentAction].get_frame(), -(players[Globals.local_username].client_x + 160), players[Globals.local_username].client_y - 25, 96, 96);
-                ctx.restore();
+            if(this.pets[this.currentPet].hasOwnProperty(this.currentAction)) {
+                //Draw pig
+                if (players[Globals.local_username].face_left) {
+                    ctx.save();
+                    ctx.scale(-1, 1);
+                    ctx.drawImage(this.pets[this.currentPet][this.currentAction].get_frame(), -(players[Globals.local_username].client_x + 160), players[Globals.local_username].client_y - 25, 96, 96);
+                    ctx.restore();
+                } else {
+                    ctx.drawImage(this.pets[this.currentPet][this.currentAction].get_frame(), players[Globals.local_username].client_x - 96, players[Globals.local_username].client_y - 25, 96, 96);
+                }
+                if(this.config.randomize && Math.random() < 0.0000046296296296296296) {
+                    this.randomizePet();
+                }
             } else {
-                ctx.drawImage(this.pets[this.currentPet][this.currentAction].get_frame(), players[Globals.local_username].client_x - 96, players[Globals.local_username].client_y - 25, 96, 96);
-            }
-            if(this.config.randomize && Math.random() < 0.0000046296296296296296) {
-                this.randomizePet();
+                this.currentAction = "stand";
             }
         }
  
         
         onLogin() {
-            this.addPets()
+            this.addPets();
         }
 
         onActionChanged() {
-            if(!FlatMMOPlus.loggedIn) {return};
+            if(!this.pets.hasOwnProperty("pig")) {return};
             if(this.pets[this.currentPet].hasOwnProperty("stand_" + this.config.event)) {
                 if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction + "_" + this.config.event)) {
                     this.currentAction = FlatMMOPlus.currentAction + "_" + this.config.event;
