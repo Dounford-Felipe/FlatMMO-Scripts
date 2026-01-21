@@ -62,6 +62,12 @@
                 },
                 config: [
                     {
+                        id: "rumbleDamage",
+                        label: "Rumble on Damage",
+                        type: "boolean",
+                        default: true
+                    },
+                    {
                         id: "gamepadRemap",
                         label: "Remap Gamepad",
                         type: "panel",
@@ -69,9 +75,11 @@
                     }
                 ]
             });
+            this.gamepad;
             this.inventorySlotSelected = 0;
             this.mapObjectSelected = 0;
             this.paths = [];
+            this.currentPath = 0;
             this.mappings = {
                 a: 0,
                 b: 1,
@@ -90,89 +98,135 @@
                 left: 14,
                 right: 15,
             };
+            this.buttonActions = {
+                0: null,
+                1: null,
+                2: null,
+                3: () => this.clickPath(),
+                4: null,
+                5: null,
+                6: null,
+                7: null,
+                8: null,
+                9: null,
+                10: null,
+                11: null,
+                12: null,
+                13: null,
+                14: () => this.currentPath = (this.currentPath - 1 + this.paths.length) % this.paths.length,
+                15: () => this.currentPath = (this.currentPath + 1 + this.paths.length) % this.paths.length,
+            }
+            this.buttonCooldowns = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            this.commandCooldown = 200;
         }
         
         onLogin() {
-            console.log("SamplePlugin.onLogin");
+            FlatMMOPlus.addPanel("gamepadMappins","Gamepad","content");
+
+            window.addEventListener("gamepadconnected", (e) => {
+                this.gamepad = e.gamepad.index;
+            })
         }
 
         //Called when the player changes map
-        onMapChanged(mapBefore, mapAfter) {
-            this.joinPaths();
+        onMessageReceived(data) {
+            if(data.startsWith("SET_TELEPORT_TILES")) {
+                this.currentPath = 0;
+                this.joinPaths();
+            }
         }
         
         //Called everytime something changes in the inventory
         onInventoryChanged() {
-            document.getElementById("ui-panel-inventory-content").children[this.inventorySlotSelected].style.cssText = "border: 2px solid #ff0000 !important; background: darkgrey;"
+            this.changeInventorySelected();
+        }
+
+        onDamageTaken() {
+            if(!this.config.rumbleDamage) {
+                return
+            }
+            gamepad.vibrationActuator.playEffect("trigger-rumble", {
+                startDelay: 0,
+                duration: 250,
+                weakMagnitude: 0,
+                strongMagnitude: 0.5,
+            });
         }
 
         //Called every frame after every other paint
         onPaint() {
-            const currentPath = 0;
-            let path = [...path2[currentPath]];
-            ctx.fillStyle = '#ff0';
-            ctx.beginPath();
-            const firstVertice = path.pop();
-            ctx.moveTo(firstVertice[0], firstVertice[1]);
-            path.forEach(p=>{
-                ctx.lineTo(p[0], p[1]);
-            })
-            ctx.stroke();
-            ctx.closePath();
-        }
-        
-        //These are used inside functions instead of being called directly by FMP
-        additionalMethods() {
-            //content can be html text or a function that returns html text
-            FlatMMOPlus.addPanel("id","Title","content");
+            if(this.paths.length !== 0) {
+                ctx.globalAlpha = 0.4;
+                ctx.fillStyle = '#ff0';
+                this.paths[this.currentPath].forEach(tile => {
+                    ctx.fillRect(tile.x, tile.y, TILE_SIZE, TILE_SIZE);
+                })
+                ctx.globalAlpha = 1;
+            }
+            if(this.gamepad !== undefined) {
+                this.checkButtons();
+            }
         }
 
-        tileToCoord(tile) {
-            return `${tile.x}-${tile.y}`;
-        }
+        checkButtons() {
+            const now = Date.now();
+            const btns = navigator.getGamepads()[this.gamepad].buttons;
 
-        joinPaths() {
-            
-            teleport_tiles = [
-    {
-        "x": 6,
-        "y": 13
-    },
-    {
-        "x": 7,
-        "y": 13
-    },
-    {
-        "x": 8,
-        "y": 13
-    },
-    {
-        "x": 22,
-        "y": 0
-    },
-    {
-        "x": 23,
-        "y": 0
-    },
-    {
-        "x": 23,
-        "y": 1
-    }
-]
-            //const tileCoords = teleport_tiles.map(tile => this.tileToCoord(tile));
-            const tileCoords = ["6-13", "7-13", "8-13", "22-0", "23-0", "23-1"];
-            const alreadyVisited = new Set();
-let final = [[[6,13],[7,13],[8,13],[9,13],[9,14],[8,14],[7,14],[6,14],[6,13]], [[22, 0], [23, 0], [24, 0], [24, 1], [24, 2], [23, 2], [23, 1], [22, 1], [22, 0]]]
-            let currentTeleport = [null, null, null, null]
-            let currentPath = [];
-            teleport_tiles.forEach((tile, index) => {
-                if(!alreadyVisited.has(this.tileToCoord(tile))) {
-                    const {x, y} = tile;
-                    currentPath.push([x, y],[x + 1, y],[x + 1, y + 1],[x, y + 1])
+            btns.forEach((btn, index) => {
+                if(btn.pressed && this.buttonActions[index] !== null && now - (this.buttonCooldowns[index] || 0) > this.commandCooldown) {
+                    this.buttonActions[index]();
+                    this.buttonCooldowns[index] = now;
                 }
             })
         }
-        
+
+
+        joinPaths() {
+            const tileSet = new Set(teleport_tiles.map(t => `${t.x},${t.y}`));
+            const visited = new Set();
+            this.paths = [];
+
+            for (const tile of teleport_tiles) {
+                const key = `${tile.x},${tile.y}`;
+                if (!visited.has(key)) {
+                    const group = [];
+                    const queue = [tile];
+                    visited.add(key);
+
+                    while (queue.length > 0) {
+                        const current = queue.shift();
+                        const neighbors = [
+                            { x: current.x + 1, y: current.y },
+                            { x: current.x - 1, y: current.y },
+                            { x: current.x, y: current.y + 1 },
+                            { x: current.x, y: current.y - 1 }
+                        ];
+
+                        for (const n of neighbors) {
+                            const nKey = `${n.x},${n.y}`;
+                            if (tileSet.has(nKey) && !visited.has(nKey)) {
+                                visited.add(nKey);
+                                queue.push(n);
+                            }
+                        }
+                        group.push({x:current.x * 64, y: current.y * 64});
+                    }
+                    this.paths.push(group);
+                }
+            }
+        }
+
+        clickPath() {
+            if(this.currentPath.length === 0) {
+                return;
+            }
+            const path = this.paths[this.currentPath][0];
+            FlatMMOPlus.sendMessage(`CLICKED_TILE=${path.x / 64}~${path.y / 64}`);
+        }
+
+        changeInventorySelected() {
+            document.getElementById("ui-panel-inventory-content").children[this.inventorySlotSelected].style.cssText = "border: 2px solid #ff0000 !important; background: darkgrey;"
+        }
         
     }
     
