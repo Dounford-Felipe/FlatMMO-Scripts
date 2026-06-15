@@ -112,6 +112,25 @@
             this.currentPet = "pig";
             this.currentAction = "stand";
             this.pets = {}
+
+            petObj = {
+                type: 0, //0 pet, 1 skin
+                requiredPet: "none", //none, petName
+                name: "",
+                creator: "Felipe",
+                id: 23,
+                downloads: 23,
+                animations: {
+                    stand: [20, "stand1"],
+                    walk: [],
+                    attack: [],
+                    fishing_net: [],
+                    fishing_rod: [],
+                    harpoon: [],
+                    mine_rock: [],
+                    chop_tree: []
+                }
+            }
         }
 
         onConfigsChanged() {
@@ -145,7 +164,7 @@
         }
 
         onActionChanged() {
-            if(!this.pets.hasOwnProperty("pig")) {return};
+            if(!this.pets.hasOwnProperty(1)) {return};
             if(this.pets[this.currentPet].hasOwnProperty("stand_" + this.config.event)) {
                 if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction + "_" + this.config.event)) {
                     this.currentAction = FlatMMOPlus.currentAction + "_" + this.config.event;
@@ -169,87 +188,91 @@
             this.changePet(petArray[newIndex])
         }
 
-        addPets() {
-            this.pets.pig = {};
-            this.registerAnimation("pig","stand","2",50);
-            this.registerAnimation("pig","walk","4",10);
-            this.registerAnimation("pig","attack","2",20);
-            this.registerAnimation("pig","fishing_net","2",25);
-            this.registerAnimation("pig","fishing_rod","2",25);
-            this.registerAnimation("pig","harpoon","2",25);
-            this.registerAnimation("pig","mine_rock","2",15);
-            this.registerAnimation("pig","chop_tree","2",20);
-            //halloween
-            this.registerAnimation("pig","stand_halloween","2",50);
-            //christmas
-            this.registerAnimation("pig","stand_christmas","2",50);
-            this.registerAnimation("pig","walk_christmas","4",10);
-            this.registerAnimation("pig","attack_christmas","2",20);
-            this.registerAnimation("pig","fishing_net_christmas","2",25);
-            this.registerAnimation("pig","fishing_rod_christmas","2",25);
-            this.registerAnimation("pig","harpoon_christmas","2",25);
-            this.registerAnimation("pig","mine_rock_christmas","2",15);
-            this.registerAnimation("pig","chop_tree_christmas","2",20);
-            
-            this.pets.beer = {};
-            this.registerAnimation("beer","stand","2",50);
-            this.registerAnimation("beer","stand_halloween","2",50);
-            this.registerAnimation("beer","stand_christmas","2",50);
-            
-            this.pets.capybara = {};
-            this.registerAnimation("capybara","stand","2",50);
-            this.registerAnimation("capybara","stand_halloween","2",50);
-            this.registerAnimation("capybara","stand_christmas","2",50);
-            
-            this.pets.blackSlimeCat = {};
-            this.registerAnimation("blackSlimeCat","stand","2",50);
-            this.registerAnimation("blackSlimeCat","walk","2",10);
-            this.registerAnimation("blackSlimeCat","attack","2",20);
-            this.registerAnimation("blackSlimeCat","stand_christmas","2",50);
-            this.registerAnimation("blackSlimeCat","walk_christmas","2",10);
-            this.registerAnimation("blackSlimeCat","attack_christmas","2",20);
-            
-            this.pets.calicoSlimeCat = {};
-            this.registerAnimation("calicoSlimeCat","stand","2",50);
-            this.registerAnimation("calicoSlimeCat","walk","2",10);
-            this.registerAnimation("calicoSlimeCat","attack","2",20);
-            this.registerAnimation("calicoSlimeCat","stand_christmas","2",50);
-            this.registerAnimation("calicoSlimeCat","walk_christmas","2",10);
-            this.registerAnimation("calicoSlimeCat","attack_christmas","2",20);
+        addPet(petObj) {
+            const pet = {
+                name: petObj.name,
+                skins: {
+                    0: {
+                        name: "Default",
+                        animations: this.newAnimations(petObj.name, petObj.animations)
+                    }
+                }
+            }
 
-            this.pets.whiteSlimeCat = {};
-            this.registerAnimation("whiteSlimeCat","stand","2",50);
-            this.registerAnimation("whiteSlimeCat","walk","2",10);
-            this.registerAnimation("whiteSlimeCat","attack","2",20);
-            this.registerAnimation("whiteSlimeCat","stand_christmas","2",50);
-            this.registerAnimation("whiteSlimeCat","walk_christmas","2",10);
-            this.registerAnimation("whiteSlimeCat","attack_christmas","2",20);
-
-            this.pets.pizza = {};
-            this.registerAnimation("pizza","stand","2",50);
-            this.registerAnimation("pizza","stand_halloween","2",50);
-            this.registerAnimation("pizza","stand_christmas","2",50);
-
-            this.pets.pumpkin = {};
-            this.registerAnimation("pumpkin","stand","2",50);
-            this.registerAnimation("pumpkin","stand_christmas","2",50);
-            
-            this.pets.gingerbreadMan = {};
-            this.registerAnimation("gingerbreadMan","stand","2",50);
-            
-            this.pets.snowman = {};
-            this.registerAnimation("snowman","stand","2",50);
-            
-            this.pets.reindeer = {};
-            this.registerAnimation("reindeer","stand","2",50);
+            this.pets[petObj.id] = pet;
         }
 
-        registerAnimation(pet, animation, frames, speed) {
-            const animations = [];
-            for (let i = 0; i < frames; i++) {
-                animations.push(`https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/${pet}/${animation}${i}.png`);
+        addSkin(petObj) {
+            //0 = pet, 1 = skin
+            //Skins require the pet
+            if(petObj.type === 1 && !this.pets.hasOwnProperty(petObj.requiredPet)) {
+                return;
             }
-            this.pets[pet][animation] = new AnimationSheetPlus(pet + animation, frames, speed, animations);
+
+            this.pets[petObj.requiredPet].skins[petObj.id] = {
+                name: petObj.name,
+                animations = this.newAnimations(petObj.animations)
+            }
+        }
+
+        newAnimations(petName, animationNames) {
+            const animations = {};
+            for (action in animationNames) {
+                const sheet = [];
+                const speed = animationNames[action].shift();
+                animationNames[action].forEach(img => {
+                    sheet.push("https://pets.dounford.qt.ce/images/" + img);
+                })
+                animations[action] = new AnimationSheetPlus(petName + action, animationNames[action].length, speed, sheet);
+            }
+            return animations;
+        }
+
+        addDefaultPets() {
+            const pig = {
+                type: 0,
+                id: 1,
+                name: "Piggy",
+                animations: {
+                    stand: [50, "stand1"],
+                    walk: [10],
+                    attack: [20],
+                    fishing_net: [25],
+                    fishing_rod: [25],
+                    harpoon: [25],
+                    mine_rock: [15],
+                    chop_tree: [20]
+                }
+            }
+            const pigHalloween = {
+                type: 1,
+                id: 2,
+                requiredPet: 1,
+                name: "Halloween",
+                animations: {
+                    stand: [50, "stand1"],
+                }
+            }
+            const pigChristmas = {
+                type: 1,
+                id: 3,
+                requiredPet: 1,
+                name: "Christmas",
+                animations: {
+                    stand: [50, "stand1"],
+                    walk: [10],
+                    attack: [20],
+                    fishing_net: [25],
+                    fishing_rod: [25],
+                    harpoon: [25],
+                    mine_rock: [15],
+                    chop_tree: [20]
+                }
+            }
+
+            this.addPet(pig);
+            this.addSkin(pigHalloween);
+            this.addSkin(pigChristmas);
         }
     }
  
