@@ -36,49 +36,20 @@
                         type: "select",
                         options: [
                             {
-                                value: "pig",
-                                label: "Pig"
+                                value: 1,
+                                label: "Piggy"
                             },
+                        ]
+                    },
+                    {
+                        id: "skin",
+                        label: "Skin",
+                        type: "select",
+                        options: [
                             {
-                                value: "blackSlimeCat",
-                                label: "Black Slime Cat"
-                            },
-                            {
-                                value: "calicoSlimeCat",
-                                label: "Calico Slime Cat"
-                            },
-                            {
-                                value: "whiteSlimeCat",
-                                label: "White Slime Cat"
-                            },
-                            {
-                                value: "pumpkin",
-                                label: "Pumpking"
-                            },
-                            {
-                                value: "pizza",
-                                label: "Pizza"
-                            },
-                            {
-                                value: "capybara",
-                                label: "Capybara"
-                            },
-                            {
-                                value: "beer",
-                                label: "Beer"
-                            },
-                            {
-                                value: "gingerbreadMan",
-                                label: "Gingerbread Man"
-                            },
-                            {
-                                value: "snowman",
-                                label: "Snowman"
-                            },
-                            {
-                                value: "reindeer",
-                                label: "Reindeer"
-                            },
+                                value: 0,
+                                label: "Default"
+                            }
                         ]
                     },
                     {
@@ -87,29 +58,11 @@
                         type: "boolean",
                         default: false
                     },
-                    {
-                        id: "event",
-                        label: "Event Skin",
-                        type: "select",
-                        options: [
-                            {
-                                value: "",
-                                label: "None"
-                            },
-                            {
-                                value: "halloween",
-                                label: "Halloween"
-                            },
-                            {
-                                value: "christmas",
-                                label: "Christmas"
-                            }
-                        ]
-                    }
                 ]
             });
 
-            this.currentPet = "pig";
+            this.currentPet = 0;
+            this.currentSkin = 0,
             this.currentAction = "stand";
             this.pets = {}
 
@@ -157,10 +110,9 @@
                 this.currentAction = "stand";
             }
         }
- 
-        
+  
         onLogin() {
-            this.addPets();
+            this.addDefaultPets();
         }
 
         onActionChanged() {
@@ -176,7 +128,7 @@
             }
         }
         
-        changePet(pet) {
+        changePet(id) {
             this.currentPet = pet;
             this.currentAction = "stand";
             this.onActionChanged();
@@ -186,6 +138,47 @@
             const petArray = Object.keys(this.pets);
             const newIndex = Math.floor(Math.random() * petArray.length);
             this.changePet(petArray[newIndex])
+        }
+
+        async downloadPet(id) {
+            const petObj = await fetch("https://pets.dounford.jq/pets/" + id);
+            if(petObj.type === 1 && !this.pets.hasOwnProperty(petObj.requiredPet)) {
+                await this.downloadPet(petObj.requiredPet);
+            }
+
+            if(petObj.type === 0) {
+                this.addPet(petObj);
+            } else {
+                this.addSkin(petObj);
+            }
+
+            let pets = [];
+            if(localStorage.getItem("pets-downloadedPets")) {
+				pets = JSON.parse(localStorage.getItem("pets-downloadedPets"));
+			}
+            pets.push(petObj);
+            localStorage.setItem("pets-downloadedPets", JSON.stringify(pets));
+        }
+
+        loadDownloadedPets() {
+            if(localStorage.getItem("pets-downloadedPets")) {
+				const pets = JSON.parse(localStorage.getItem("pets-downloadedPets"));
+                pets.forEach(pet => {
+                    if(pet.type === 0) {
+                        this.addPet(pet);
+                    } else {
+                        this.addSkin(pet);
+                    }
+                })
+			}
+        }
+
+        removePet(id) {
+            if(this.currentPet === id) {
+                this.changePet(1);
+            }
+            delete this.pets[id];
+            this.opts.config[0].options = this.opts.config[0].options.filter(p => p.value !== id);
         }
 
         addPet(petObj) {
@@ -200,13 +193,15 @@
             }
 
             this.pets[petObj.id] = pet;
+
+            this.opts.config[0].options.push({value: petObj.id, label: petObj.name});
         }
 
-        addSkin(petObj) {
+        async addSkin(petObj) {
             //0 = pet, 1 = skin
             //Skins require the pet
             if(petObj.type === 1 && !this.pets.hasOwnProperty(petObj.requiredPet)) {
-                return;
+                await this.downloadPet(petObj.requiredPet);
             }
 
             this.pets[petObj.requiredPet].skins[petObj.id] = {
