@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Pets
 // @namespace    com.dounford.flatmmo.piggie
-// @version      1.5.0.4
+// @version      2.0
 // @description  Adds custom Pets to the game
 // @author       Dounford
 // @license      MIT
@@ -19,7 +19,7 @@
             super("petsBuddy", {
                 about: {
                     name: "FlatMMO+ Pets",
-                    version: "1.5.0.4",
+                    version: "2.0",
                     author: "Dounford",
                     description: "Adds custom Pets to the game"
                 },
@@ -34,23 +34,14 @@
                         id: "pet",
                         label: "Pet",
                         type: "select",
-                        options: [
-                            {
-                                value: 1,
-                                label: "Piggy"
-                            },
-                        ]
+                        onChange: this.updateSkins,
+                        options: []
                     },
                     {
                         id: "skin",
                         label: "Skin",
                         type: "select",
-                        options: [
-                            {
-                                value: 0,
-                                label: "Default"
-                            }
-                        ]
+                        options: []
                     },
                     {
                         id: "randomize",
@@ -87,49 +78,67 @@
         }
 
         onConfigsChanged() {
-            this.changePet(this.config["pet"]);
+            //Just to make sure that pet will be changed first
+            Array.from(this.changedConfigs).sort().forEach(config => {
+                switch(config) {
+                    case "pet":
+                        this.changePet(this.config.pet);
+                        break;
+                    case "skin":
+                        this.changeSkin(this.config.skin)
+                        break;
+                }
+            })
         }
         
         onPaint() {
-            if(this.config["showPet"] === false) {return}
-            if(FlatMMOPlus.loggedIn === false) {return}
-            if(this.pets[this.currentPet].hasOwnProperty(this.currentAction)) {
-                //Draw pig
-                if (players[Globals.local_username].face_left) {
-                    ctx.save();
-                    ctx.scale(-1, 1);
-                    ctx.drawImage(this.pets[this.currentPet][this.currentAction].get_frame(), -(players[Globals.local_username].client_x + 160), players[Globals.local_username].client_y - 25, 96, 96);
-                    ctx.restore();
-                } else {
-                    ctx.drawImage(this.pets[this.currentPet][this.currentAction].get_frame(), players[Globals.local_username].client_x - 96, players[Globals.local_username].client_y - 25, 96, 96);
-                }
-                if(this.config.randomize && Math.random() < 0.0000046296296296296296) {
-                    this.randomizePet();
-                }
-            } else {
+            if(this.config.showPet === false) {return};
+            if(FlatMMOPlus.loggedIn === false) {return};
+            
+            //This should not happen, but just in case the current action is not available
+            if(!this.pets[this.currentPet].skins[this.currentSkin].animations.hasOwnProperty(this.currentAction)) {
                 this.currentAction = "stand";
+            }
+
+            if (players[Globals.local_username].face_left) {
+                ctx.save();
+                ctx.scale(-1, 1);
+                ctx.drawImage(this.pets[this.currentPet].skins[this.currentSkin].animations[this.currentAction].get_frame(), -(players[Globals.local_username].client_x + 160), players[Globals.local_username].client_y - 25, 96, 96);
+                ctx.restore();
+            } else {
+                ctx.drawImage(this.pets[this.currentPet].skins[this.currentSkin].animations[this.currentAction].get_frame(), players[Globals.local_username].client_x - 96, players[Globals.local_username].client_y - 25, 96, 96);
+            }
+            // 1 / 3600 / 60 | 1 in 1 hour with 60 fps
+            if(this.config.randomize && Math.random() < 0.000004629) {
+                this.randomizePet();
             }
         }
   
         onLogin() {
             this.addDefaultPets();
+            this.loadDownloadedPets();
         }
 
         onActionChanged() {
             if(!this.pets.hasOwnProperty(1)) {return};
-            if(this.pets[this.currentPet].hasOwnProperty("stand_" + this.config.event)) {
-                if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction + "_" + this.config.event)) {
-                    this.currentAction = FlatMMOPlus.currentAction + "_" + this.config.event;
-                } else {
-                    this.currentAction = "stand_" + this.config.event;
-                }
-            } else if(this.pets[this.currentPet].hasOwnProperty(FlatMMOPlus.currentAction)) {
+            if(this.pets[this.currentPet].skins[this.currentSkin].animations.hasOwnProperty(FlatMMOPlus.currentAction)) {
                 this.currentAction = FlatMMOPlus.currentAction;
             }
         }
         
         changePet(id) {
-            this.currentPet = pet;
+            this.currentPet = id;
+            this.currentSkin = 0;
+            this.currentAction = "stand";
+            this.onActionChanged();
+        }
+
+        changeSkin(id) {
+            if(this.pets[this.currentPet].skins.hasOwnProperty(id)) {
+                this.currentSkin = 0;
+                return;
+            }
+            this.currentSkin = id;
             this.currentAction = "stand";
             this.onActionChanged();
         }
@@ -137,7 +146,10 @@
         randomizePet() {
             const petArray = Object.keys(this.pets);
             const newIndex = Math.floor(Math.random() * petArray.length);
-            this.changePet(petArray[newIndex])
+            const skinArray = Object.keys(this.pets[petArray[newIndex]].skins);
+            const newSkinIndex = Math.floor(Math.random() * skinArray.length);
+            this.changePet(petArray[newIndex]);
+            this.changeSkin(skinArray[newSkinIndex]);
         }
 
         async downloadPet(id) {
@@ -179,6 +191,16 @@
             }
             delete this.pets[id];
             this.opts.config[0].options = this.opts.config[0].options.filter(p => p.value !== id);
+            FlatMMOPlus.refreshPanel("plugins");
+        }
+
+        updateSkins() {
+            const pet = document.getElementById("flatmmoplus-config-petsBuddy-pet").value;
+            this.opts.config[3].options = [];
+            for (let skin in this.pets[pet]) {
+                this.opts.config[3].options.push({value: skin, label: this.pets[pet].skins[skin].name});
+            }
+            FlatMMOPlus.refreshPanel("plugins");
         }
 
         addPet(petObj) {
@@ -208,6 +230,10 @@
                 name: petObj.name,
                 animations = this.newAnimations(petObj.animations)
             }
+
+            if(this.config.pet === petObj.requiredPet) {
+                this.updateSkins();
+            }
         }
 
         newAnimations(petName, animationNames) {
@@ -229,14 +255,14 @@
                 id: 1,
                 name: "Piggy",
                 animations: {
-                    stand: [50, "stand1"],
-                    walk: [10],
-                    attack: [20],
-                    fishing_net: [25],
-                    fishing_rod: [25],
-                    harpoon: [25],
-                    mine_rock: [15],
-                    chop_tree: [20]
+                    stand: [50, "piggy-stand-a1a277d4-fbd7-4506-8c4a-f77d9a8cb38e","piggy-stand-b043b32e-cb9e-46dd-b7ec-4b5178d190bb"],
+                    walk: [10, "piggy-walk-1baeb892-f70b-4125-8c40-6b374f41c14c", "piggy-walk-16a40417-19aa-466b-a6ee-c409d9b404aa", "piggy-walk-bee44f7d-5b72-40c9-ab5c-2341b84ca8fc", "piggy-walk-32b2ad99-4eb7-4cbf-9806-a71147494283"],
+                    // attack: [20],
+                    // fishing_net: [25],
+                    // fishing_rod: [25],
+                    // harpoon: [25],
+                    // mine_rock: [15],
+                    // chop_tree: [20]
                 }
             }
             const pigHalloween = {
@@ -245,7 +271,7 @@
                 requiredPet: 1,
                 name: "Halloween",
                 animations: {
-                    stand: [50, "stand1"],
+                    stand: [50, "piggy-2-stand-0916944a-acfb-4abf-832c-3454cd832017", "piggy-2-stand-2235e326-a791-4ac3-8c25-b55aa9bd2cc7"],
                 }
             }
             const pigChristmas = {
@@ -254,8 +280,8 @@
                 requiredPet: 1,
                 name: "Christmas",
                 animations: {
-                    stand: [50, "stand1"],
-                    walk: [10],
+                    stand: [50, "piggy-3-stand-537aa72a-e3f1-43d4-9cae-ece58f88fac2", "piggy-3-stand-ee3a688b-92e4-4ab6-8895-b23815884c4f"],
+                    walk: [10, "piggy-3-walk-b00e8e10-c9f5-459a-ab83-ec16c5073ba0", "piggy-3-walk-649d42d0-5853-41f3-bff2-20d46fab94fe", "piggy-3-walk-3344f9f1-f1b1-4d47-824e-50a96eb3e708", "piggy-3-walk-c13d447d-1022-44d3-914e-22073db965db"],
                     attack: [20],
                     fishing_net: [25],
                     fishing_rod: [25],
@@ -266,8 +292,8 @@
             }
 
             this.addPet(pig);
-            this.addSkin(pigHalloween);
-            this.addSkin(pigChristmas);
+            //this.addSkin(pigHalloween);
+            //this.addSkin(pigChristmas);
         }
     }
  
