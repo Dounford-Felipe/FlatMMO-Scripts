@@ -34,7 +34,7 @@
                         id: "pet",
                         label: "Pet",
                         type: "select",
-                        onChange: this.updateSkins,
+                        onChange: () => FlatMMOPlus.plugins.petsBuddy.updateSkins(),
                         options: []
                     },
                     {
@@ -52,29 +52,12 @@
                 ]
             });
 
-            this.currentPet = 0;
+            this.currentPet = 1;
             this.currentSkin = 0,
             this.currentAction = "stand";
             this.pets = {}
 
-            petObj = {
-                type: 0, //0 pet, 1 skin
-                requiredPet: "none", //none, petName
-                name: "",
-                creator: "Felipe",
-                id: 23,
-                downloads: 23,
-                animations: {
-                    stand: [20, "stand1"],
-                    walk: [],
-                    attack: [],
-                    fishing_net: [],
-                    fishing_rod: [],
-                    harpoon: [],
-                    mine_rock: [],
-                    chop_tree: []
-                }
-            }
+            
         }
 
         onConfigsChanged() {
@@ -153,23 +136,37 @@
         }
 
         async downloadPet(id) {
-            const petObj = await fetch("https://pets.dounford.qd.je/pets" + id);
-            if(petObj.type === 1 && !this.pets.hasOwnProperty(petObj.requiredPet)) {
-                await this.downloadPet(petObj.requiredPet);
+            let response;
+            try {
+                response = await fetch("http://localhost:7830/pets/" + id);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`)
+                }
+                const petObj = await response.json();
+                petObj.animations = JSON.parse(petObj.animations);
+    
+                if(petObj.type === 1 && !this.pets.hasOwnProperty(petObj.requiredPet)) {
+                    await this.downloadPet(petObj.requiredPet);
+                }
+    
+                if(petObj.type === 0) {
+                    this.addPet(petObj);
+                } else {
+                    this.addSkin(petObj);
+                }
+    
+                let pets = [];
+                if(localStorage.getItem("pets-downloadedPets")) {
+                    pets = JSON.parse(localStorage.getItem("pets-downloadedPets"));
+                }
+                pets.push(petObj);
+                localStorage.setItem("pets-downloadedPets", JSON.stringify(pets));
+            } catch (err) {
+                if(response.status === 404) {
+                    //TBD show error
+                    return;
+                }
             }
-
-            if(petObj.type === 0) {
-                this.addPet(petObj);
-            } else {
-                this.addSkin(petObj);
-            }
-
-            let pets = [];
-            if(localStorage.getItem("pets-downloadedPets")) {
-				pets = JSON.parse(localStorage.getItem("pets-downloadedPets"));
-			}
-            pets.push(petObj);
-            localStorage.setItem("pets-downloadedPets", JSON.stringify(pets));
         }
 
         loadDownloadedPets() {
@@ -190,15 +187,15 @@
                 this.changePet(1);
             }
             delete this.pets[id];
-            this.opts.config[0].options = this.opts.config[0].options.filter(p => p.value !== id);
+            this.opts.config[1].options = this.opts.config[1].options.filter(p => p.value !== id);
             FlatMMOPlus.refreshPanel("plugins");
         }
 
         updateSkins() {
             const pet = document.getElementById("flatmmoplus-config-petsBuddy-pet").value;
-            this.opts.config[3].options = [];
-            for (let skin in this.pets[pet]) {
-                this.opts.config[3].options.push({value: skin, label: this.pets[pet].skins[skin].name});
+            this.opts.config[2].options = [];
+            for (let skin in this.pets[pet].skins) {
+                this.opts.config[2].options.push({value: skin, label: this.pets[pet].skins[skin].name});
             }
             FlatMMOPlus.refreshPanel("plugins");
         }
@@ -209,14 +206,14 @@
                 skins: {
                     0: {
                         name: "Default",
-                        animations: this.newAnimations(petObj.name, petObj.animations)
+                        animations: this.newAnimations(petObj.id, petObj.name, petObj.animations)
                     }
                 }
             }
 
             this.pets[petObj.id] = pet;
 
-            this.opts.config[0].options.push({value: petObj.id, label: petObj.name});
+            this.opts.config[1].options.push({value: petObj.id, label: petObj.name});
         }
 
         async addSkin(petObj) {
@@ -228,7 +225,7 @@
 
             this.pets[petObj.requiredPet].skins[petObj.id] = {
                 name: petObj.name,
-                animations = this.newAnimations(petObj.animations)
+                animations: this.newAnimations(petObj.id, petObj.name ,petObj.animations)
             }
 
             if(this.config.pet === petObj.requiredPet) {
@@ -236,13 +233,13 @@
             }
         }
 
-        newAnimations(petName, animationNames) {
+        newAnimations(id, petName, animationNames) {
             const animations = {};
-            for (action in animationNames) {
+            for (let action in animationNames) {
                 const sheet = [];
                 const speed = animationNames[action].shift();
                 animationNames[action].forEach(img => {
-                    sheet.push("https://pets.dounford.qt.ce/images/" + img);
+                    sheet.push(`http://localhost:7830/images/${id}/${img}.png`);
                 })
                 animations[action] = new AnimationSheetPlus(petName + action, animationNames[action].length, speed, sheet);
             }
@@ -282,12 +279,12 @@
                 animations: {
                     stand: [50, "piggy-3-stand-537aa72a-e3f1-43d4-9cae-ece58f88fac2", "piggy-3-stand-ee3a688b-92e4-4ab6-8895-b23815884c4f"],
                     walk: [10, "piggy-3-walk-b00e8e10-c9f5-459a-ab83-ec16c5073ba0", "piggy-3-walk-649d42d0-5853-41f3-bff2-20d46fab94fe", "piggy-3-walk-3344f9f1-f1b1-4d47-824e-50a96eb3e708", "piggy-3-walk-c13d447d-1022-44d3-914e-22073db965db"],
-                    attack: [20],
-                    fishing_net: [25],
-                    fishing_rod: [25],
-                    harpoon: [25],
-                    mine_rock: [15],
-                    chop_tree: [20]
+                    //attack: [20],
+                    //fishing_net: [25],
+                    //fishing_rod: [25],
+                    //harpoon: [25],
+                    //mine_rock: [15],
+                    //chop_tree: [20]
                 }
             }
 
