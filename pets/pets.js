@@ -153,7 +153,7 @@
         }
 
         async downloadPet(id) {
-            const petObj = await fetch("https://pets.dounford.jq/pets/" + id);
+            const petObj = await fetch("https://pets.dounford.qd.je/pets" + id);
             if(petObj.type === 1 && !this.pets.hasOwnProperty(petObj.requiredPet)) {
                 await this.downloadPet(petObj.requiredPet);
             }
