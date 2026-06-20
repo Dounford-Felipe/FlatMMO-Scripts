@@ -56,7 +56,7 @@
             this.currentSkin = 0,
             this.currentAction = "stand";
             this.pets = {}
-
+            this.uploadIframe = null;
             
         }
 
@@ -106,6 +106,40 @@
             if(!this.pets.hasOwnProperty(1)) {return};
             if(this.pets[this.currentPet].skins[this.currentSkin].animations.hasOwnProperty(FlatMMOPlus.currentAction)) {
                 this.currentAction = FlatMMOPlus.currentAction;
+            }
+        }
+
+        onCustomReceived(sender, script, command, payload) {
+            if(sender === "dounbot" && command === "secretToken") {
+                this.uploadIframe.postMessage({ type: 'secretToken', username: Globals.local_username, token: payload }, 'http://127.0.0.1:5500');
+            }
+        }
+
+        addUI() {
+            FlatMMOPlus.addPanel("petShop", "Pet Shop", `
+
+            `, true);
+            FlatMMOPlus.addPanel("petShopUpload", "Upload Pet", `
+                <button onclick="FlatMMOPlus.plugins.petsBuddy.toggleIframe()">Toggle Pet Uploader (expensive)</button>
+            `, false);
+            document.getElementById("ui-panel-petShopUpload-content").style = "display: flex;flex-direction: column;"
+        }
+
+        toggleIframe(id) {
+            if(this.uploadIframe) {
+                this.uploadIframe.remove();
+                this.uploadIframe = null;
+            } else {
+                const panel = document.getElementById("settings-modal-petShopUpload-panel");
+                this.uploadIframe = document.createElement("iframe");
+                this.uploadIframe.style = "border: none;flex-grow: 1;";
+                let url = "http://127.0.0.1:5500/test.html";
+                url = id ? `${url}?=petId=${id}` : url;
+                this.uploadIframe.src = url;
+                panel.append(this.uploadIframe);
+                this.uploadIframe.onload = () => {
+                    this.sendCustom("dounbot", "hash")
+                }
             }
         }
         
