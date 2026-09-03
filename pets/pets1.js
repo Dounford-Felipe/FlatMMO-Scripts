@@ -27,7 +27,7 @@
                 },
                 config: [
                     {
-						id: "showPet",
+                        id: "showPet",
 						label: "Show Pet",
 						type: "boolean",
 						default: true
@@ -38,12 +38,16 @@
                         type: "select",
                         options: [
                             {
-                                value: "pig",
-                                label: "Pig"
+                                value: "ogPig",
+                                label: "Original Pig"
                             },
                             {
                                 value: "blackSlimeCat",
                                 label: "Black Slime Cat"
+                            },
+                            {
+                                value: "coolPizza",
+                                label: "Cool Pizza"
                             },
                             {
                                 value: "calicoSlimeCat",
@@ -74,16 +78,16 @@
                                 label: "Gingerbread Man"
                             },
                             {
+                                value: "pig",
+                                label: "Pig"
+                            },
+                            {
                                 value: "snowman",
                                 label: "Snowman"
                             },
                             {
                                 value: "reindeer",
                                 label: "Reindeer"
-                            },
-                            {
-                                value: "cool_pizza",
-                                label: "Cool Pizza"
                             },
                             {
                                 value: "redPresent",
@@ -104,10 +108,6 @@
                             {
                                 value: "ogBeer",
                                 label: "Original Beer"
-                            },
-                            {
-                                value: "ogPig",
-                                label: "Original Pig"
                             },
                             {
                                 value: "wolf",
@@ -143,9 +143,10 @@
                 ]
             });
 
-            this.currentPet = "pig";
+            this.currentPet = "ogPig";
             this.currentAction = "stand";
-            this.pets = {}
+            this.pets = {};
+            this.loaded = false;
         }
 
         onConfigsChanged() {
@@ -153,23 +154,24 @@
         }
         
         onPaint() {
-            if(this.config["showPet"] === false) {return}
-            if(FlatMMOPlus.loggedIn === false) {return}
-            if(this.pets[this.currentPet].hasOwnProperty(this.currentAction)) {
-                //Draw pig
-                if (players[Globals.local_username].face_left) {
-                    ctx.save();
-                    ctx.scale(-1, 1);
-                    ctx.drawImage(this.pets[this.currentPet][this.currentAction].get_frame(), -(players[Globals.local_username].client_x + 160), players[Globals.local_username].client_y - 25, 96, 96);
-                    ctx.restore();
-                } else {
-                    ctx.drawImage(this.pets[this.currentPet][this.currentAction].get_frame(), players[Globals.local_username].client_x - 96, players[Globals.local_username].client_y - 25, 96, 96);
-                }
-                if(this.config.randomize && Math.random() < 0.0000046296296296296296) {
-                    this.randomizePet();
-                }
-            } else {
+            if(this.config["showPet"] === false) return;
+            if(this.loaded === false) return;
+            if(!this.pets.hasOwnProperty(this.currentPet)) return;
+            if(!this.pets[this.currentPet].hasOwnProperty(this.currentAction)) {
                 this.currentAction = "stand";
+            }
+            //Draw pig
+            const sheet = this.pets[this.currentPet][this.currentAction];
+            if (players[Globals.local_username].face_left) {
+                ctx.save();
+                ctx.scale(-1, 1);
+                ctx.drawImage(sheet.get_frame(), -(players[Globals.local_username].client_x + 160), players[Globals.local_username].client_y - 25, sheet.width, sheet.height);
+                ctx.restore();
+            } else {
+                ctx.drawImage(sheet.get_frame(), players[Globals.local_username].client_x - 96, players[Globals.local_username].client_y - 25, sheet.width, sheet.height);
+            }
+            if(this.config.randomize && Math.random() < 0.0000046296296296296296) {
+                this.randomizePet();
             }
         }
  
@@ -203,67 +205,83 @@
             this.changePet(petArray[newIndex])
         }
 
-        addPet(pet, eventName = "") {
+        async addPet(pet) {
             if(!this.pets.hasOwnProperty(pet.name)) {
                 this.pets[pet.name] = {};
             }
-            pet.animations.forEach(animation => {
+            for(let i = 0; i < pet.animations.length; i++) {
+                const animation = pet.animations[i];
                 if(Array.isArray(animation)) {
-                    this.registerAnimation(pet.name, animation[0], animation[2] || 2, animation[1]);
+                    await this.registerAnimation(pet.name, animation[0], animation[2] || 2, animation[1]);
                 } else {
-                    this.registerAnimation(pet.name, animation, 2, pet.speed);
+                    await this.registerAnimation(pet.name, animation, 2, pet.speed);
                 }
-            })
+            }
         }
         
-        addSkin(pet, eventName) {
+        async addSkin(pet, eventName) {
             if(!this.pets.hasOwnProperty(pet)) return;
             //Halloween only has stand animations
             if(eventName === "halloween") {
-                this.registerAnimation(pet,"stand_halloween", this.pets[pet].stand.frames, this.pets[pet].stand.speed);
+                await this.registerAnimation(pet,"stand_halloween", this.pets[pet].stand.FRAMES, this.pets[pet].stand.SPEED);
                 return;
             }
-            Object.entries(this.pets[pet]).forEach(animation => {
-                this.registerAnimation(pet, animation[0] + "_" + eventName, animation.frames, animation.speed);
-            })
+            const animations = Object.entries(this.pets[pet]);
+            for (let i = 0; i < animations.length; i++) {
+                const animation = animations[i];
+                await this.registerAnimation(pet, animation[0] + "_" + eventName, animation[1].FRAMES, animation[1].SPEED);
+            }
         }
         
-        addPets() {
+        async addPets() {
             const defaultPets = [
-                {name: "beer", animations: ["stand", 25, 1], speed: 25},
+                {name: "beer", animations: [["stand", 25, 1]], speed: 25},
                 {name: "blackSlimeCat", animations: ["stand", ["walk", 10], ["attack", 20]], speed: 50, christmas: true},
-                {name: "bluePresent", animations: ["stand", 25, 1], speed: 25},
+                {name: "bluePresent", animations: [["stand", 25, 1]], speed: 25},
                 {name: "calicoSlimeCat", animations: ["stand", ["walk", 10], ["attack", 20]], speed: 50, christmas: true},
-                {name: "capybara", animations: ["stand", 25, 1], speed: 25},
-                {name: "coolPizza", animations: ["stand", 25, 1], speed: 25},
-                {name: "cupcake", animations: ["stand", 25, 1], speed: 25},
+                {name: "capybara", animations: [["stand", 25, 1]], speed: 25},
+                {name: "coolPizza", animations: [["stand", 25, 1]], speed: 25},
+                {name: "cupcake", animations: [["stand", 25, 1]], speed: 25},
                 {name: "gingerbreadMan", animations: ["stand"], speed: 25},
                 {name: "ogBeer", animations: ["stand"], speed: 25, halloween: true, christmas: true},
                 {name: "ogCapybara", animations: ["stand"], speed: 50, halloween: true, christmas: true},
                 {name: "ogPig", animations: [["stand", 50], ["walk", 10, 4], ["attack", 20], "fishing_net", "fishing_rod", "harpoon", ["mine_rock", 15], ["chop_tree", 20]], speed: 25, halloween: true, christmas: true},
-                {name: "pig", animations: ["stand", 25, 1], speed: 25},
+                {name: "pig", animations: [["stand", 25, 1]], speed: 25},
                 {name: "pizza", animations: ["stand"], speed: 50, halloween: true, christmas: true},
                 {name: "pumpkin", animations: ["stand"], speed: 50, christmas: true},
-                {name: "redPresent", animations: ["stand", 25, 1], speed: 25},
+                {name: "redPresent", animations: [["stand", 25, 1]], speed: 25},
                 {name: "reindeer", animations: ["stand"], speed: 50},
                 {name: "snowman", animations: ["stand"], speed: 50},
                 {name: "whiteSlimeCat", animations: ["stand", ["walk", 10], ["attack", 20]], speed: 50, christmas: true},
-                {name: "wolf", animations: ["stand", 25, 1], speed: 25},
+                {name: "wolf", animations: [["stand", 25, 1]], speed: 25},
 
             ]
-            defaultPets.forEach(pet => {
-                this.addPet(pet);
-                if(pet.christmas) this.addSkin(pet.name, "christmas");
-                if(pet.halloween) this.addSkin(pet.name, "halloween");
-            })
+            for(let i = 0; i < defaultPets.length; i++) {
+                const pet = defaultPets[i];
+                await this.addPet(pet);
+                if(pet.christmas) await this.addSkin(pet.name, "christmas");
+                if(pet.halloween) await this.addSkin(pet.name, "halloween");
+            }
+            this.loaded = true;
         }
 
-        registerAnimation(pet, animation, frames, speed) {
+        async registerAnimation(pet, animation, frames, speed) {
             const animations = [];
             for (let i = 0; i < frames; i++) {
                 animations.push(`https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/${pet}/${animation}${i}.png`);
             }
-            this.pets[pet][animation] = new AnimationSheetPlus(pet + animation, frames, speed, animations);
+            const sheet = await new AnimationSheetPlus(pet + animation, frames, speed, animations, true);
+            const firstImage = sheet.images[0]
+            if(firstImage.width > firstImage.height) {
+                const aspect = firstImage.width / firstImage.height;
+                sheet.width = 96;
+                sheet.height = 96 / aspect;
+            } else {
+                const aspect = firstImage.height / firstImage.width;
+                sheet.height = 96;
+                sheet.width = 96 / aspect;
+            }
+            this.pets[pet][animation] = sheet;
         }
     }
  
