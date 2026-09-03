@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FlatMMO+ Pets
 // @namespace    com.dounford.flatmmo.piggie
-// @version      1.6.0
+// @version      1.6.2
 // @description  Adds custom Pets to the game
 // @author       Dounford
 // @license      MIT
@@ -21,7 +21,7 @@
             super("petsBuddy", {
                 about: {
                     name: "FlatMMO+ Pets",
-                    version: "1.6.0",
+                    version: "1.6.2",
                     author: "Dounford",
                     description: "Adds custom Pets to the game"
                 },
@@ -162,13 +162,17 @@
             }
             //Draw pig
             const sheet = this.pets[this.currentPet][this.currentAction];
+            const frame = sheet.get_frame();
+
+            if (!frame || !frame.complete || frame.naturalWidth === 0) return;
+
             if (players[Globals.local_username].face_left) {
                 ctx.save();
                 ctx.scale(-1, 1);
-                ctx.drawImage(sheet.get_frame(), -(players[Globals.local_username].client_x + 160), players[Globals.local_username].client_y - 25, sheet.width, sheet.height);
+                ctx.drawImage(frame, -(players[Globals.local_username].client_x + 160), players[Globals.local_username].client_y - 25, sheet.width, sheet.height);
                 ctx.restore();
             } else {
-                ctx.drawImage(sheet.get_frame(), players[Globals.local_username].client_x - 96, players[Globals.local_username].client_y - 25, sheet.width, sheet.height);
+                ctx.drawImage(frame, players[Globals.local_username].client_x - 96, players[Globals.local_username].client_y - 25, sheet.width, sheet.height);
             }
             if(this.config.randomize && Math.random() < 0.0000046296296296296296) {
                 this.randomizePet();
@@ -268,18 +272,24 @@
         async registerAnimation(pet, animation, frames, speed) {
             const animations = [];
             for (let i = 0; i < frames; i++) {
-                animations.push(`https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/${pet}/${animation}${i}.png`);
+                animations.push(`https://raw.githubusercontent.com/Dounford-Felipe/FlatMMO-Scripts/refs/heads/main/pets/images/${pet}/${animation}${i}.png?v=${this.opts.about.version}`);
             }
             const sheet = await new AnimationSheetPlus(pet + animation, frames, speed, animations, true);
             const firstImage = sheet.images[0]
-            if(firstImage.width > firstImage.height) {
-                const aspect = firstImage.width / firstImage.height;
-                sheet.width = 96;
-                sheet.height = 96 / aspect;
+
+            if (firstImage && firstImage.complete && firstImage.naturalWidth > 0 && firstImage.naturalHeight > 0) {
+                if(firstImage.width > firstImage.height) {
+                    const aspect = firstImage.width / firstImage.height;
+                    sheet.width = 96;
+                    sheet.height = 96 / aspect;
+                } else {
+                    const aspect = firstImage.height / firstImage.width;
+                    sheet.height = 96;
+                    sheet.width = 96 / aspect;
+                }
             } else {
-                const aspect = firstImage.height / firstImage.width;
+               sheet.width = 96;
                 sheet.height = 96;
-                sheet.width = 96 / aspect;
             }
             this.pets[pet][animation] = sheet;
         }
