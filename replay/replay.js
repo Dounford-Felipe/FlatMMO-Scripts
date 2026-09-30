@@ -9,19 +9,20 @@
 // @grant        none
 // @require      https://update.greasyfork.org/scripts/544062/FlatMMOPlus.js
 // ==/UserScript==
-
-/**
- * @typedef {Object} ChatData
- * @property {string} username
- * @property {string} tag
- * @property {string} sigil
- * @property {string} color
- * @property {string} message
- * @property {boolean} yell
- */
  
 (function() {
     'use strict';
+
+    /**
+     * Chat Object received onChat
+     * @typedef {Object} ChatData
+     * @property {string} username
+     * @property {string} tag
+     * @property {string} sigil
+     * @property {string} color
+     * @property {string} message
+     * @property {boolean} yell
+     */
  
     class SamplePlugin extends FlatMMOPlusPlugin {
         constructor() {
@@ -34,73 +35,42 @@
                 },
                 config: [
                     {
-                        type: "label",
-                        label: "Section Label:"
-                    },
-                    {
-                        id: "MyCheckbox",
-                        label: "Yes / No",
+                        id: "record",
+                        label: "Record the Game",
                         type: "boolean",
                         default: true
                     },
                     {
-                        id: "MyInteger",
-                        label: "Pick a Integer Number",
-                        type: "integer",
-                        min: 1,
-                        max: 10,
-                        type: "integer",
-                        default: 1
+                        id: "chat",
+                        label: "Capture chat",
+                        type: "boolean",
+                        default: true
                     },
                     {
-                        id: "MyNumber",
-                        label: "Pick a Float Number",
-                        type: "number",
-                        min: 0,
-                        max: 10,
-                        step: 0.1,
-                        default: 1.5
+                        id: "chat",
+                        label: "Capture Other Players",
+                        type: "boolean",
+                        default: true
                     },
                     {
-						id: "myRange",
-						label: "Choose a volume",
-						type: "range",
-						min: 0,
-						max: 100,
-						step: 1,
-						default: 100,
-					},
-                    {
-                        id: "MyString",
-                        label: "Enter a Thing",
-                        type: "string",
-                        max: 20,
-                        default: "x"
+                        id: "chat",
+                        label: "Capture Pets",
+                        type: "boolean",
+                        default: true
                     },
-                    {
-                        id: "MySelect",
-                        label: "Pick One",
-                        type: "select",
-                        options: [
-                            {value: "opt1", label: "Option 1"},
-                            {value: "opt2", label: "Option 2"},
-                            {value: "opt3", label: "Option 3"}
-                        ],
-                        default: "opt2"
-                    },
-                    {
-                        id: "myColor",
-                        label: "Pick a color",
-                        type: "color"
-                    },
-                    {
-                        id: "inventoryPanel",
-                        label: "Go to Inventory",
-                        type: "panel",
-                        panel: "inventory"
-                    }
                 ]
             });
+            this.recording = false;
+            this.lastNpcs = [];
+            this.lastPlayers = {};
+
+            this.events = [
+                {
+                    type: "",
+                    timestamp: "",
+                    data: {}
+                }
+            ]
         }
 
         
@@ -114,16 +84,30 @@
             console.log("SamplePlugin.onLogin");
         }
         
-        
         /**
          * Receives all messages sent by the game server
          * @param {string} data 
          */
         onMessageReceived(data) {
-            // Will spam the console, uncomment if you want to see it
-            //console.log("SamplePlugin.onMessageReceived: ", data);
-        }
+            if(data.startsWith("NPCS=")) {
+                const split = data.substring(5).split("~");
 
+                if(this.lastNpcs.length === 0) {
+                    this.lastNpcs = split;
+                    return;
+                }
+
+                const changes = {};
+
+                for (let i = 0; i < split.length; i++) {
+                    const stat = split[i];
+
+                    if(this.lastNpcs[i] !== stat)
+                    
+                }
+            }
+        }
+        
         /**
          * This is called on pm, local and global chat messages
          * @param {ChatData} data 
@@ -150,6 +134,8 @@
         //Called when the player changes map
         onMapChanged(mapBefore, mapAfter) {
             // console.log("SamplePlugin.onMapChange", mapBefore, mapAfter);
+            this.lastNpcs = [];
+            this.lastPlayers = {};
         }
         
         //Called everytime something changes in the inventory
